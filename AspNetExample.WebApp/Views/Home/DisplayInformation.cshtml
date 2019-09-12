@@ -1,0 +1,74 @@
+﻿@model AspNetExample.WebApp.ViewModels.DisplayInformationViewModel
+
+@{
+    ViewBag.Title = "title";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2></h2>
+<div id="edit" class="col-md-12">
+    <div class="row">
+        <div class="col-md-12 col-xs-12">
+            <div class="panel panel-default">
+                <div class="panel-heading clearfix">
+                    <h3 class="panel-title">Ping Federate OAuth Information</h3>
+                </div>
+
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <div class="panel panel-default ">
+                                <div class="panel-heading clearfix">
+                                    <h3 class="panel-title"></h3>
+                                    <table class="table">
+                                        <tr>
+                                            <td>
+                                                <label>
+                                                    Authorization Token :
+                                                </label>
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(m => m.AccessToken, new { @readonly = true, @class = "col-md-11" })
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>
+                                                <label>
+                                                    Refresh Token :
+                                                </label>
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(m => m.RefreshToken, new { @readonly = true, @class = "col-md-11" })
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <label>
+                                                    Token Type :
+                                                </label>
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(m => m.TokenType, new { @readonly = true, @class = "col-md-11" })
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <label>
+                                                    Expires In :
+                                                </label>
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(m => m.ExpiresIn, new { @readonly = true, @class = "col-md-11" })
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

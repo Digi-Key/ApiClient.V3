@@ -1,0 +1,78 @@
+﻿
+@model AspNetExample.WebApp.Models.SettingsViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="~/Scripts/jquery-1.10.2.js"></script>
+<h2>
+    &nbsp;
+</h2>
+<div id="edit" class="col-md-12">
+    @using (Html.BeginForm("Index", "Home", FormMethod.Post))
+    {
+        <div class="row">
+            <div class="col-md-12 col-xs-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading clearfix">
+                        <h3 class="panel-title">PingFederate OAuth2 Settings</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="panel panel-default ">
+                                    <div class="panel-heading clearfix">
+                                        <h3 class="panel-title"></h3>
+                                        <table class="table">
+                                            <tr>
+                                                <td style="width: 160px;">
+                                                    <label>
+                                                        Client Id :
+                                                    </label>
+                                                </td>
+                                                <td>
+                                                    @Html.TextBoxFor(m => m.ClientId, new { @class = "col-md-11", @id = "ClientId" })
+                                                    @Html.ValidationMessageFor(model => model.ClientId)
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <label>
+                                                        Client Secret:
+                                                    </label>
+                                                </td>
+                                                <td>
+                                                    @Html.TextBoxFor(m => m.ClientSecret, new { @class = "col-md-11", @id = "ClientSecret" })
+                                                    @Html.ValidationMessageFor(model => model.ClientSecret)
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <label>
+                                                        Callback URL:
+                                                    </label>
+                                                </td>
+                                                <td>
+                                                    @Html.TextBoxFor(m => m.RedirectUri, new { @class = "col-md-11", @id = "Callback" })
+                                                    @Html.ValidationMessageFor(model => model.RedirectUri)
+                                                </td>
+                                            </tr>
+
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 col-xs-12">
+                            <div class="row">
+                                <button class="btn btn-primary" type="submit" name="submitButton" value="Authorize">
+                                    Authorize
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
