@@ -23,7 +23,7 @@ Console.WriteLine("response is {0}", postResponse);
 ### Getting Started  
 
 1. Download the zip file containing the solution ApiClient
-2. You may need to Register an application in order to create your unique Client ID and Client Secret and OAuth Redirection URL, follow the steps (1 thru 4) from <https://api-portal.digikey.com/start>
+2. You will need to Register an application in order to create your unique Client ID, Client Secret, and OAuth Redirection URL. Follow the steps available on the API Portal here https://developer.digikey.com/
 3. In the solution folder update  apiclient.config with the ClientId, ClientSecret, and RedirectUri values from step 2.
 ```
 <?xml version="1.0" encoding="utf-8"?>
