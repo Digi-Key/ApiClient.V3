@@ -13,6 +13,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -64,6 +65,8 @@ namespace ApiClient.OAuth2
         /// <returns>Returns OAuth2AccessToken</returns>
         public static async Task<OAuth2AccessToken> RefreshTokenAsync(ApiClientSettings clientSettings)
         {
+            ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072;
+
             var postUrl = DigiKeyUriConstants.TokenEndpoint;
 
             var content = new FormUrlEncodedContent(new[]
