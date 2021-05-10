@@ -9,7 +9,7 @@
 
 ```csharp
 var settings = ApiClientSettings.CreateFromConfigFile();
-var client = new DigiKeyClient(settings);
+var client = new ApiClientService(settings);
 var postResponse = await client.KeywordSearch("P5555-ND");
 Console.WriteLine("response is {0}", postResponse);
 ```
