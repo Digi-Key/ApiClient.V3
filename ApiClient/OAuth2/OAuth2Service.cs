@@ -54,7 +54,7 @@ namespace ApiClient.OAuth2
         /// <returns>String which is the oauth2 authorization url.</returns>
         public string GenerateAuthUrl(string scopes = "", string state = null)
         {
-            var url = string.Format("{0}?client_id={1}&scope={2}&redirect_uri={3}&response_type={4}",
+            var url = string.Format("{0}?client_id={1}&scopes={2}&redirect_uri={3}&response_type={4}",
                                     DigiKeyUriConstants.AuthorizationEndpoint,
                                     ClientSettings.ClientId,
                                     scopes,
