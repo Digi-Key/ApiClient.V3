@@ -194,3 +194,4 @@ ModelManifest.xml
 #
 /DigiKey.Api.zip
 *.7z
+apiclient.config
