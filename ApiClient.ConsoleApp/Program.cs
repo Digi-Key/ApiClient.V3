@@ -25,7 +25,7 @@ namespace ApiClient.ConsoleApp
         static void Main()
         {
 
-            CallKeywordSearch();
+            Task.Run(() => CallKeywordSearch());
 
             // This will keep the console window up until a key is pressed in the console window.
             Console.WriteLine("\n\nPress any key to exit...");

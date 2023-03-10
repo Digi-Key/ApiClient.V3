@@ -36,8 +36,6 @@ namespace ApiClient.Core.Configuration
         {
             try
             {
-                string regexPattern = @"^(.*)(\\bin\\)(.*)$";
-
                 // We are attempting to find the apiclient.config file in the solution folder for this project
                 // Using this method we can use the same apiclient.config for all the projects in this solution.
                 var baseDir = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');

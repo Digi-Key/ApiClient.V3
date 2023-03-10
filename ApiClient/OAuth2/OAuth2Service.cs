@@ -71,7 +71,7 @@ namespace ApiClient.OAuth2
         /// </summary>
         /// <param name="code">Code value returned by the RedirectUri callback</param>
         /// <returns>Returns OAuth2AccessToken</returns>
-        public async Task<OAuth2AccessToken> FinishAuthorization(string code)
+        public async Task<OAuth2AccessToken> FinishAuthorization(string? code)
         {
             ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072;
             ServicePointManager.ServerCertificateValidationCallback =

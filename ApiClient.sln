@@ -13,11 +13,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Readme.md = Readme.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiClient.ConsoleApp", "ApiClient.ConsoleApp\ApiClient.ConsoleApp.csproj", "{C7CEDB8A-AE8D-4281-A93E-7A3DBE938806}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiClient.ConsoleApp", "ApiClient.ConsoleApp\ApiClient.ConsoleApp.csproj", "{C7CEDB8A-AE8D-4281-A93E-7A3DBE938806}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiClient", "ApiClient\ApiClient.csproj", "{248D1DD7-69BF-4818-A011-166988414DB2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiClient", "ApiClient\ApiClient.csproj", "{248D1DD7-69BF-4818-A011-166988414DB2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OAuth2Service.ConsoleApp", "OAuth2Service.ConsoleApp\OAuth2Service.ConsoleApp.csproj", "{CBF0A3EA-6976-4EBB-92DD-610142ADB08C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OAuth2Service.ConsoleApp", "OAuth2Service.ConsoleApp\OAuth2Service.ConsoleApp.csproj", "{CBF0A3EA-6976-4EBB-92DD-610142ADB08C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Apps", "Apps", "{A5AA7642-E123-4A22-8D1F-150B634DDC02}"
 EndProject

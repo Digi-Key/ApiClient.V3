@@ -22,7 +22,7 @@ namespace OAuth2Service.ConsoleApp
 {
     public class Program
     {
-        private ApiClientSettings _clientSettings;
+        private ApiClientSettings? _clientSettings;
 
         static void Main()
         {
