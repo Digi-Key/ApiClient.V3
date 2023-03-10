@@ -11,8 +11,6 @@
 // 
 //-----------------------------------------------------------------------
 
-using System;
-
 namespace ApiClient.Constants
 {
     /// <summary>
@@ -20,14 +18,32 @@ namespace ApiClient.Constants
     /// </summary>
     public static class DigiKeyUriConstants
     {
+        public static Uri GetBaseAddress()
+        {
+            var Production = bool.Parse(Environment.GetEnvironmentVariable("DigikeyProduction"));
+            return Production ? ProductionBaseAddress : SandboxBaseAddress;
+        }
+
+        public static Uri GetTokenEndpoint()
+        {
+            var Production = bool.Parse(Environment.GetEnvironmentVariable("DigikeyProduction"));
+            return Production ? ProductionTokenEndpoint : SandboxTokenEndpoint;
+        }
+
+        public static Uri GetAuthorizationEndpoint()
+        {
+            var Production = bool.Parse(Environment.GetEnvironmentVariable("DigikeyProduction"));
+            return Production ? ProductionAuthorizationEndpoint : SandboxAuthorizationEndpoint;
+        }
+
         // Production Sandbox instance
-        public static readonly Uri BaseAddress = new Uri("https://sandbox-api.digikey.com");
-        public static readonly Uri TokenEndpoint = new Uri("https://sandbox-api.digikey.com/v1/oauth2/token");
-        public static readonly Uri AuthorizationEndpoint = new Uri("https://sandbox-api.digikey.com/v1/oauth2/authorize");
+        public static readonly Uri SandboxBaseAddress = new("https://sandbox-api.digikey.com");
+        public static readonly Uri SandboxTokenEndpoint = new("https://sandbox-api.digikey.com/v1/oauth2/token");
+        public static readonly Uri SandboxAuthorizationEndpoint = new("https://sandbox-api.digikey.com/v1/oauth2/authorize");
 
         // Production instance
-        //public static readonly Uri BaseAddress = new Uri("https://api.digikey.com");
-        //public static readonly Uri TokenEndpoint = new Uri("https://api.digikey.com/v1/oauth2/token");
-        //public static readonly Uri AuthorizationEndpoint = new Uri("https://api.digikey.com/v1/oauth2/authorize");
+        public static readonly Uri ProductionBaseAddress = new("https://api.digikey.com");
+        public static readonly Uri ProductionTokenEndpoint = new("https://api.digikey.com/v1/oauth2/token");
+        public static readonly Uri ProductionAuthorizationEndpoint = new("https://api.digikey.com/v1/oauth2/authorize");
     }
 }

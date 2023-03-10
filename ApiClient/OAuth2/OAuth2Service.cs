@@ -11,17 +11,13 @@
 // 
 //-----------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
 using ApiClient.Constants;
 using ApiClient.Models;
 using ApiClient.OAuth2.Models;
 using Common.Logging;
 using Newtonsoft.Json;
+using System.Net;
+using System.Net.Http.Headers;
 
 namespace ApiClient.OAuth2
 {
@@ -55,7 +51,7 @@ namespace ApiClient.OAuth2
         public string GenerateAuthUrl(string scopes = "", string state = null)
         {
             var url = string.Format("{0}?client_id={1}&scope={2}&redirect_uri={3}&response_type={4}",
-                                    DigiKeyUriConstants.AuthorizationEndpoint,
+                                    DigiKeyUriConstants.GetAuthorizationEndpoint(),
                                     ClientSettings.ClientId,
                                     scopes,
                                     ClientSettings.RedirectUri,
@@ -93,9 +89,9 @@ namespace ApiClient.OAuth2
             };
 
             // Request the token
-            var requestMessage = new HttpRequestMessage(HttpMethod.Post, DigiKeyUriConstants.TokenEndpoint);
+            var requestMessage = new HttpRequestMessage(HttpMethod.Post, DigiKeyUriConstants.GetTokenEndpoint());
 
-            var httpClient = new HttpClient {BaseAddress = DigiKeyUriConstants.BaseAddress};
+            var httpClient = new HttpClient { BaseAddress = DigiKeyUriConstants.GetBaseAddress() };
 
             requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             requestMessage.Content = new FormUrlEncodedContent(body);
@@ -135,6 +131,6 @@ namespace ApiClient.OAuth2
             return await OAuth2Helpers.RefreshTokenAsync(ClientSettings);
         }
 
-        
+
     }
 }

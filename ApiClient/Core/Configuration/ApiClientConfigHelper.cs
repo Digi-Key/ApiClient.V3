@@ -11,13 +11,10 @@
 // 
 //-----------------------------------------------------------------------
 
-using System;
-using System.Configuration;
-using System.Globalization;
-using System.IO;
-using System.Text.RegularExpressions;
 using ApiClient.Core.Configuration.Interfaces;
 using ApiClient.Exception;
+using System.Configuration;
+using System.Globalization;
 
 namespace ApiClient.Core.Configuration
 {
@@ -26,7 +23,7 @@ namespace ApiClient.Core.Configuration
         // Static members are 'eagerly initialized', that is, 
         // immediately when class is loaded for the first time.
         // .NET guarantees thread safety for static initialization
-        private static readonly ApiClientConfigHelper _thisInstance = new ApiClientConfigHelper();
+        private static readonly ApiClientConfigHelper _thisInstance = new();
 
         private const string _ClientId = "ApiClient.ClientId";
         private const string _ClientSecret = "ApiClient.ClientSecret";
@@ -45,10 +42,11 @@ namespace ApiClient.Core.Configuration
                 // Using this method we can use the same apiclient.config for all the projects in this solution.
                 var baseDir = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
 
-                // This little hack is ugly but needed to work with Console apps and Asp.Net apps.
-                var solutionDir = Regex.IsMatch(baseDir, regexPattern)
-                    ? Directory.GetParent(baseDir).Parent.Parent   // Console Apps
-                    : Directory.GetParent(baseDir);    // Asp.Net apps
+                var solutionDir = new DirectoryInfo(Directory.GetCurrentDirectory());
+                while (solutionDir != null && !solutionDir.GetFiles("*.sln").Any())
+                {
+                    solutionDir = solutionDir.Parent;
+                }
 
                 if (!File.Exists(Path.Combine(solutionDir.FullName, "apiclient.config")))
                 {

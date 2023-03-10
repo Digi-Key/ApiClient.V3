@@ -11,11 +11,10 @@
 // 
 //-----------------------------------------------------------------------
 
-using System;
-using System.Configuration;
-using System.Diagnostics.CodeAnalysis;
 using ApiClient.Core.Configuration.Interfaces;
 using Common.Logging;
+using System.Configuration;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ApiClient.Core.Configuration
 {
@@ -58,9 +57,7 @@ namespace ApiClient.Core.Configuration
         {
             try
             {
-                return _config.AppSettings.Settings[attrName] == null
-                    ? null
-                    : _config.AppSettings.Settings[attrName].Value;
+                return _config.AppSettings.Settings[attrName]?.Value;
             }
             catch (System.Exception)
             {

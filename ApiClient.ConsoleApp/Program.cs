@@ -1,4 +1,4 @@
-//-----------------------------------------------------------------------
+﻿//-----------------------------------------------------------------------
 //
 // THE SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTIES OF ANY KIND, EXPRESS, IMPLIED, STATUTORY, 
 // OR OTHERWISE. EXPECT TO THE EXTENT PROHIBITED BY APPLICABLE LAW, DIGI-KEY DISCLAIMS ALL WARRANTIES, 
@@ -11,13 +11,9 @@
 // 
 //-----------------------------------------------------------------------
 
-using System;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using ApiClient.Models;
 using ApiClient.OAuth2;
 using Common.Logging;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace ApiClient.ConsoleApp
@@ -28,16 +24,15 @@ namespace ApiClient.ConsoleApp
 
         static void Main()
         {
-            var prog = new Program();
 
-            prog.CallKeywordSearch();
+            CallKeywordSearch();
 
             // This will keep the console window up until a key is pressed in the console window.
             Console.WriteLine("\n\nPress any key to exit...");
             Console.ReadKey();
         }
 
-        private async Task CallKeywordSearch()
+        private static async Task CallKeywordSearch()
         {
             var settings = ApiClientSettings.CreateFromConfigFile();
             _log.DebugFormat(settings.ToString());
@@ -70,7 +65,7 @@ namespace ApiClient.ConsoleApp
                 var response = await client.KeywordSearch("P5555-ND");
 
                 // In order to pretty print the json object we need to do the following
-                var jsonFormatted = JToken.Parse(response).ToString(Formatting.Indented);
+                var jsonFormatted = JToken.Parse(response).ToString(Newtonsoft.Json.Formatting.Indented);
 
                 Console.WriteLine($"Reponse is {jsonFormatted} ");
             }

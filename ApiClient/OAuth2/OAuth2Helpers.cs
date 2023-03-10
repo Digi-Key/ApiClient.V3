@@ -11,19 +11,18 @@
 // 
 //-----------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
 using ApiClient.Constants;
 using ApiClient.Exception;
 using ApiClient.Models;
 using ApiClient.OAuth2.Models;
 using Common.Logging;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace ApiClient.OAuth2
 {
@@ -67,7 +66,7 @@ namespace ApiClient.OAuth2
         {
             ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072;
 
-            var postUrl = DigiKeyUriConstants.TokenEndpoint;
+            var postUrl = DigiKeyUriConstants.GetTokenEndpoint();
 
             var content = new FormUrlEncodedContent(new[]
             {

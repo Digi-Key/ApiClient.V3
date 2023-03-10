@@ -11,17 +11,14 @@
 // 
 //-----------------------------------------------------------------------
 
-using System;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
-using System.Web.Http;
 using ApiClient.Constants;
 using ApiClient.Exception;
 using ApiClient.Models;
 using ApiClient.OAuth2;
 using Common.Logging;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Web.Http;
 
 namespace ApiClient
 {
@@ -59,7 +56,7 @@ namespace ApiClient
             HttpClient.DefaultRequestHeaders.Authorization = authenticationHeaderValue;
 
             HttpClient.DefaultRequestHeaders.Add("X-Digikey-Client-Id", ClientSettings.ClientId);
-            HttpClient.BaseAddress = DigiKeyUriConstants.BaseAddress;
+            HttpClient.BaseAddress = DigiKeyUriConstants.GetBaseAddress();
             HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
@@ -153,7 +150,7 @@ namespace ApiClient
             }
         }
 
-        protected async Task<string> GetServiceResponse(HttpResponseMessage response)
+        protected static async Task<string> GetServiceResponse(HttpResponseMessage response)
         {
             _log.DebugFormat(">ApiClientService::GetServiceResponse()");
             var postResponse = string.Empty;

@@ -1,4 +1,4 @@
-//-----------------------------------------------------------------------
+﻿//-----------------------------------------------------------------------
 //
 // THE SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTIES OF ANY KIND, EXPRESS, IMPLIED, STATUTORY, 
 // OR OTHERWISE. EXPECT TO THE EXTENT PROHIBITED BY APPLICABLE LAW, DIGI-KEY DISCLAIMS ALL WARRANTIES, 
@@ -11,13 +11,12 @@
 // 
 //-----------------------------------------------------------------------
 
-using System;
+using ApiClient.Extensions;
+using ApiClient.Models;
 using System.Diagnostics;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Web;
-using ApiClient.Extensions;
-using ApiClient.Models;
 
 namespace OAuth2Service.ConsoleApp
 {
@@ -38,7 +37,40 @@ namespace OAuth2Service.ConsoleApp
         }
 
         /// <summary>
-        ///     OAuth2 code flow authorization with apiclient.config values
+        /// Allows the .NET Core console app to open the browser to the auth URL
+        /// </summary>
+        /// <param name="url"></param>
+        public static void OpenBrowser(string url)
+        {
+            try
+            {
+                Process.Start(url);
+            }
+            catch
+            {
+                // hack because of this: https://github.com/dotnet/corefx/issues/10361
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    url = url.Replace("&", "^&");
+                    Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    Process.Start("xdg-open", url);
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    Process.Start("open", url);
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
+        /// <summary>
+        /// OAuth2 code flow authorization with apiclient.config values
         /// </summary>
         private async void Authorize()
         {
@@ -58,7 +90,7 @@ namespace OAuth2Service.ConsoleApp
 
             // create Authorize url and send call it thru Process.Start
             var authUrl = oAuth2Service.GenerateAuthUrl(scopes);
-            Process.Start(authUrl);
+            OpenBrowser(authUrl);
 
             // get the URL returned from the callback(RedirectUri)
             var context = await httpListener.GetContextAsync();
