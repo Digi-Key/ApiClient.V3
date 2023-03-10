@@ -24,7 +24,7 @@ Console.WriteLine("response is {0}", postResponse);
 
 1. Download the zip file containing the solution ApiClient
 2. You will need to Register an application in order to create your unique Client ID, Client Secret, and OAuth Redirection URL. Follow the steps available on the API Portal here https://developer.digikey.com/
-3. In the solution folder update  apiclient.config with the ClientId, ClientSecret, and RedirectUri values from step 2.
+3. In the solution folder copy apiclientexample.config as apiclient.config, and update it with the ClientId, ClientSecret, and RedirectUri values from step 2.
 ```
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
@@ -38,5 +38,6 @@ Console.WriteLine("response is {0}", postResponse);
     </appSettings>
 </configuration>
 ```
-4. Run OAuth2Service.ConsoleApp to set the access token, refresh token and expiration date in apiclient.config. 
-5. Run ApiClient.ConsoleApp to get results from keyword search.
+4. Set the DigikeyProduction environment variable to either true or false for each project you plan to use the ApiClient library in. You can do this by right clicking on the project in Visual Studio and selecting Properties. Then select the Debug tab and add the environment variable in the Environment Variables section.
+5. Run OAuth2Service.ConsoleApp to set the access token, refresh token and expiration date in apiclient.config. 
+6. Run ApiClient.ConsoleApp to get results from keyword search.
