@@ -18,7 +18,7 @@ using ApiClient.OAuth2;
 using Common.Logging;
 using System.Net;
 using System.Net.Http.Headers;
-using System.Web.Http;
+using System.Net.Http.Json;
 
 namespace ApiClient
 {
@@ -169,12 +169,7 @@ namespace ApiClient
                 Console.WriteLine("  Status Code : {0}", response.StatusCode);
                 Console.WriteLine("  Content     : {0}", errorMessage);
                 Console.WriteLine("  Reason      : {0}", response.ReasonPhrase);
-                var resp = new HttpResponseMessage(response.StatusCode)
-                {
-                    Content = response.Content,
-                    ReasonPhrase = response.ReasonPhrase
-                };
-                throw new HttpResponseException(resp);
+                throw new System.Exception(errorMessage);
             }
 
             _log.DebugFormat("<ApiClientService::GetServiceResponse()");
