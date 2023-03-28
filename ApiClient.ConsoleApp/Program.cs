@@ -1,14 +1,14 @@
 ﻿//-----------------------------------------------------------------------
 //
-// THE SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTIES OF ANY KIND, EXPRESS, IMPLIED, STATUTORY, 
-// OR OTHERWISE. EXPECT TO THE EXTENT PROHIBITED BY APPLICABLE LAW, DIGI-KEY DISCLAIMS ALL WARRANTIES, 
-// INCLUDING, WITHOUT LIMITATION, ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, 
-// SATISFACTORY QUALITY, TITLE, NON-INFRINGEMENT, QUIET ENJOYMENT, 
-// AND WARRANTIES ARISING OUT OF ANY COURSE OF DEALING OR USAGE OF TRADE. 
-// 
-// DIGI-KEY DOES NOT WARRANT THAT THE SOFTWARE WILL FUNCTION AS DESCRIBED, 
+// THE SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTIES OF ANY KIND, EXPRESS, IMPLIED, STATUTORY,
+// OR OTHERWISE. EXPECT TO THE EXTENT PROHIBITED BY APPLICABLE LAW, DIGI-KEY DISCLAIMS ALL WARRANTIES,
+// INCLUDING, WITHOUT LIMITATION, ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
+// SATISFACTORY QUALITY, TITLE, NON-INFRINGEMENT, QUIET ENJOYMENT,
+// AND WARRANTIES ARISING OUT OF ANY COURSE OF DEALING OR USAGE OF TRADE.
+//
+// DIGI-KEY DOES NOT WARRANT THAT THE SOFTWARE WILL FUNCTION AS DESCRIBED,
 // WILL BE UNINTERRUPTED OR ERROR-FREE, OR FREE OF HARMFUL COMPONENTS.
-// 
+//
 //-----------------------------------------------------------------------
 
 using ApiClient.Models;
@@ -22,9 +22,8 @@ namespace ApiClient.ConsoleApp
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(Program));
 
-        static void Main()
+        private static void Main()
         {
-
             Task.Run(() => CallKeywordSearch());
 
             // This will keep the console window up until a key is pressed in the console window.
@@ -46,7 +45,7 @@ namespace ApiClient.ConsoleApp
                     var oAuth2AccessToken = await oAuth2Service.RefreshTokenAsync();
                     if (oAuth2AccessToken.IsError)
                     {
-                        // Current Refresh token is invalid or expired 
+                        // Current Refresh token is invalid or expired
                         _log.DebugFormat("Current Refresh token is invalid or expired ");
                         Console.WriteLine("Current Refresh token is invalid or expired ");
                         return;
@@ -62,7 +61,8 @@ namespace ApiClient.ConsoleApp
                 }
 
                 var client = new ApiClientService(settings);
-                var response = await client.KeywordSearch("P5555-ND");
+                var response = await client.PartSearch.KeywordSearch("P5555-ND");
+                //var response = await client.KeywordSearch("P5555-ND");
 
                 // In order to pretty print the json object we need to do the following
                 var jsonFormatted = JToken.Parse(response).ToString(Newtonsoft.Json.Formatting.Indented);

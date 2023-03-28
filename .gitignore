@@ -196,3 +196,6 @@ ModelManifest.xml
 *.7z
 apiclient.config
 launchsettings.json
+
+*.nuspec
+*.nupkg

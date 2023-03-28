@@ -1,17 +1,18 @@
 //-----------------------------------------------------------------------
 //
-// THE SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTIES OF ANY KIND, EXPRESS, IMPLIED, STATUTORY, 
-// OR OTHERWISE. EXPECT TO THE EXTENT PROHIBITED BY APPLICABLE LAW, DIGI-KEY DISCLAIMS ALL WARRANTIES, 
-// INCLUDING, WITHOUT LIMITATION, ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, 
-// SATISFACTORY QUALITY, TITLE, NON-INFRINGEMENT, QUIET ENJOYMENT, 
-// AND WARRANTIES ARISING OUT OF ANY COURSE OF DEALING OR USAGE OF TRADE. 
-// 
-// DIGI-KEY DOES NOT WARRANT THAT THE SOFTWARE WILL FUNCTION AS DESCRIBED, 
+// THE SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTIES OF ANY KIND, EXPRESS, IMPLIED, STATUTORY,
+// OR OTHERWISE. EXPECT TO THE EXTENT PROHIBITED BY APPLICABLE LAW, DIGI-KEY DISCLAIMS ALL WARRANTIES,
+// INCLUDING, WITHOUT LIMITATION, ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
+// SATISFACTORY QUALITY, TITLE, NON-INFRINGEMENT, QUIET ENJOYMENT,
+// AND WARRANTIES ARISING OUT OF ANY COURSE OF DEALING OR USAGE OF TRADE.
+//
+// DIGI-KEY DOES NOT WARRANT THAT THE SOFTWARE WILL FUNCTION AS DESCRIBED,
 // WILL BE UNINTERRUPTED OR ERROR-FREE, OR FREE OF HARMFUL COMPONENTS.
-// 
+//
 //-----------------------------------------------------------------------
 
 using ApiClient.Constants;
+using ApiClient.EndpointAPI.ProductInformation;
 using ApiClient.Exception;
 using ApiClient.Models;
 using ApiClient.OAuth2;
@@ -24,7 +25,7 @@ namespace ApiClient
 {
     public class ApiClientService
     {
-        private const string CustomHeader = "Api-StaleTokenRetry";
+        internal const string CustomHeader = "Api-StaleTokenRetry";
         private static readonly ILog _log = LogManager.GetLogger(typeof(ApiClientService));
 
         private ApiClientSettings _clientSettings;
@@ -35,6 +36,22 @@ namespace ApiClient
             set => _clientSettings = value;
         }
 
+        private PartSearch _partSearch;
+
+        public PartSearch PartSearch
+        {
+            get => _partSearch;
+            set => _partSearch = value;
+        }
+
+        private RecommendedParts _recommendedParts;
+
+        public RecommendedParts RecommendedParts
+        {
+            get => _recommendedParts;
+            set => _recommendedParts = value;
+        }
+
         /// <summary>
         ///     The httpclient which will be used for the api calls through the this instance
         /// </summary>
@@ -43,6 +60,7 @@ namespace ApiClient
         public ApiClientService(ApiClientSettings clientSettings)
         {
             ClientSettings = clientSettings ?? throw new ArgumentNullException(nameof(clientSettings));
+            _partSearch = new PartSearch(this);
             Initialize();
         }
 
@@ -69,7 +87,7 @@ namespace ApiClient
                 var oAuth2AccessToken = await oAuth2Service.RefreshTokenAsync();
                 if (oAuth2AccessToken.IsError)
                 {
-                    // Current Refresh token is invalid or expired 
+                    // Current Refresh token is invalid or expired
                     Console.WriteLine("Current Refresh token is invalid or expired ");
                     return;
                 }
@@ -85,20 +103,53 @@ namespace ApiClient
             }
         }
 
-        public async Task<string> KeywordSearch(string keyword)
+        public async Task<HttpResponseMessage> GetAsync(string resourcePath)
         {
-            var resourcePath = "/Search/v3/Products/Keyword";
-
-            var request = new KeywordSearchRequest
+            _log.DebugFormat(">ApiClientService::GetAsync()");
+            try
             {
-                Keywords = keyword ?? "P5555-ND",
-                RecordCount = 25
-            };
+                var response = await HttpClient.GetAsync(resourcePath);
+                _log.DebugFormat("<ApiClientService::GetAsync()");
 
-            await ResetExpiredAccessTokenIfNeeded();
-            var postResponse = await PostAsJsonAsync(resourcePath, request);
+                //Unauthorized, then there is a chance token is stale
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    var responseBody = await response.Content.ReadAsStringAsync();
 
-            return GetServiceResponse(postResponse).Result;
+                    if (OAuth2Helpers.IsTokenStale(responseBody))
+                    {
+                        _log.DebugFormat(
+                            $"Stale access token detected ({_clientSettings.AccessToken}. Calling RefreshTokenAsync to refresh it");
+                        await OAuth2Helpers.RefreshTokenAsync(_clientSettings);
+                        _log.DebugFormat($"New Access token is {_clientSettings.AccessToken}");
+
+                        //Only retry the first time.
+                        if (!response.RequestMessage.Headers.Contains(CustomHeader))
+                        {
+                            HttpClient.DefaultRequestHeaders.Add(CustomHeader, CustomHeader);
+                            HttpClient.DefaultRequestHeaders.Authorization =
+                                new AuthenticationHeaderValue("Authorization", _clientSettings.AccessToken);
+                            return await GetAsync(resourcePath);
+                        }
+                        else if (response.RequestMessage.Headers.Contains(CustomHeader))
+                        {
+                            throw new ApiException($"Inside method {nameof(GetAsync)} we received an unexpected stale token response - during the retry for a call whose token we just refreshed {response.StatusCode}. Please reauthorize and restart the application.");
+                        }
+                    }
+                }
+
+                return response;
+            }
+            catch (HttpRequestException hre)
+            {
+                _log.DebugFormat($"GetAsync<T>: HttpRequestException is {hre.Message}");
+                throw;
+            }
+            catch (ApiException dae)
+            {
+                _log.DebugFormat($"GetAsync<T>: ApiException is {dae.Message}");
+                throw;
+            }
         }
 
         public async Task<HttpResponseMessage> PostAsJsonAsync<T>(string resourcePath, T postRequest)
@@ -131,7 +182,7 @@ namespace ApiClient
                         }
                         else if (response.RequestMessage.Headers.Contains(CustomHeader))
                         {
-                            throw new ApiException($"Inside method {nameof(PostAsJsonAsync)} we received an unexpected stale token response - during the retry for a call whose token we just refreshed {response.StatusCode}");
+                            throw new ApiException($"Inside method {nameof(PostAsJsonAsync)} we received an unexpected stale token response - during the retry for a call whose token we just refreshed {response.StatusCode}. Please reauthorize and restart the application.");
                         }
                     }
                 }
@@ -150,7 +201,7 @@ namespace ApiClient
             }
         }
 
-        protected static async Task<string> GetServiceResponse(HttpResponseMessage response)
+        public static async Task<string> GetServiceResponse(HttpResponseMessage response)
         {
             _log.DebugFormat(">ApiClientService::GetServiceResponse()");
             var postResponse = string.Empty;

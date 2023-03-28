@@ -17,13 +17,13 @@ namespace ApiClient.Models
 {
     public class OAuth2Error
     {
-        [JsonProperty("httpCode")]
+        [JsonProperty("StatusCode")]
         public string HttpStatusCode { get; set; }
 
-        [JsonProperty("httpMessage")]
+        [JsonProperty("ErrorMessage")]
         public string HttpMessage { get; set; }
 
-        [JsonProperty("moreInformation")]
+        [JsonProperty("ErrorDetails")]
         public string MoreInformation { get; set; }
     }
 }

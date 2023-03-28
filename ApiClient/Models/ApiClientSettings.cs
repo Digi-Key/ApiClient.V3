@@ -11,11 +11,10 @@
 // 
 //-----------------------------------------------------------------------
 
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Text;
 using ApiClient.Core.Configuration;
 using ApiClient.OAuth2.Models;
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 namespace ApiClient.Models
 {

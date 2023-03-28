@@ -17,12 +17,8 @@ using ApiClient.Models;
 using ApiClient.OAuth2.Models;
 using Common.Logging;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ApiClient.OAuth2
 {
@@ -43,7 +39,7 @@ namespace ApiClient.OAuth2
         public static bool IsTokenStale(string content)
         {
             var errors = JsonConvert.DeserializeObject<OAuth2Error>(content);
-            return errors.HttpMessage.ToLower().Contains("unauthorized");
+            return (errors.HttpMessage.ToLower().Contains("unauthorized") || errors.HttpMessage.ToLower().Contains("invalid"));
         }
 
         /// <summary>
