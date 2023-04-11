@@ -86,7 +86,21 @@ namespace ApiClient.OAuth2
 
             _log.DebugFormat("RefreshToken: " + oAuth2AccessTokenResponse);
 
-            clientSettings.UpdateAndSave(oAuth2AccessTokenResponse);
+            if (String.IsNullOrEmpty(oAuth2AccessTokenResponse.AccessToken))
+            {
+	            // likely an error
+	            OAuth2Error oAuth2Error = OAuth2Helpers.ParseOAuth2ErrorResponse(responseString);
+	            oAuth2AccessTokenResponse.Error =
+		            oAuth2Error != null ? oAuth2Error.ErrorMessage : "Error refreshing token";
+	            if (oAuth2Error != null)
+	            {
+		            throw new ApiException($"Error trying to refresh token. {oAuth2Error.ErrorMessage}: {oAuth2Error.ErrorDetails}", null);
+	            }
+            }
+            else
+            {
+	            clientSettings.UpdateAndSave(oAuth2AccessTokenResponse);
+            }
 
             return oAuth2AccessTokenResponse;
         }
@@ -111,6 +125,28 @@ namespace ApiClient.OAuth2
                 _log.DebugFormat($"Unable to parse OAuth2 access token response {e.Message}");
                 throw new ApiException($"Unable to parse OAuth2 access token response {e.Message}", null);
             }
+        }
+
+        /// <summary>
+        /// Parses the OAuth2 error response.
+        /// </summary>
+        /// <param name="response">The response.</param>
+        /// <returns>instance of OAuth2Error</returns>
+        /// <exception cref="ApiException">ull)</exception>
+        public static OAuth2Error ParseOAuth2ErrorResponse(string response)
+        {
+	        try
+	        {
+		        OAuth2Error oAuth2ErrorResponse = JsonConvert.DeserializeObject<OAuth2Error>(response);
+		        //_log.DebugFormat("RefreshToken: " + oAuth2AccessTokenResponse.ToString());
+		        return oAuth2ErrorResponse;
+	        }
+	        catch (System.Exception e)
+	        {
+		        Console.WriteLine(e.Message);
+		        //_log.DebugFormat($"Unable to parse OAuth2 access token response {e.Message}");
+		        throw new ApiException($"Unable to parse OAuth2 error response {e.Message}", null);
+	        }
         }
     }
 }
