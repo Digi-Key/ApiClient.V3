@@ -11,18 +11,12 @@
 // 
 //-----------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
-using System.Threading.Tasks;
 using ApiClient.Constants;
 using ApiClient.Exception;
 using ApiClient.Models;
 using ApiClient.OAuth2.Models;
-using Common.Logging;
 using Newtonsoft.Json;
 
 namespace ApiClient.OAuth2
@@ -32,8 +26,6 @@ namespace ApiClient.OAuth2
     /// </summary>
     public static class OAuth2Helpers
     {
-        private static readonly ILog _log = LogManager.GetLogger(typeof(OAuth2Helpers));
-
         /// <summary>
         ///     Determines whether response has a unauthorized error message.
         /// </summary>
@@ -84,8 +76,6 @@ namespace ApiClient.OAuth2
 
             var oAuth2AccessTokenResponse = OAuth2Helpers.ParseOAuth2AccessTokenResponse(responseString);
 
-            _log.DebugFormat("RefreshToken: " + oAuth2AccessTokenResponse);
-
             clientSettings.UpdateAndSave(oAuth2AccessTokenResponse);
 
             return oAuth2AccessTokenResponse;
@@ -102,13 +92,11 @@ namespace ApiClient.OAuth2
             try
             {
                 var oAuth2AccessTokenResponse = JsonConvert.DeserializeObject<OAuth2AccessToken>(response);
-                _log.DebugFormat("RefreshToken: " + oAuth2AccessTokenResponse.ToString());
                 return oAuth2AccessTokenResponse;
             }
             catch (System.Exception e)
             {
                 Console.WriteLine(e.Message);
-                _log.DebugFormat($"Unable to parse OAuth2 access token response {e.Message}");
                 throw new ApiException($"Unable to parse OAuth2 access token response {e.Message}", null);
             }
         }

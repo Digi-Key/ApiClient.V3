@@ -15,7 +15,11 @@ using System;
 using System.Configuration;
 using System.Diagnostics.CodeAnalysis;
 using ApiClient.Core.Configuration.Interfaces;
-using Common.Logging;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using NLog;
+using NLog.Internal;
+using ConfigurationManager = System.Configuration.ConfigurationManager;
 
 namespace ApiClient.Core.Configuration
 {
@@ -25,8 +29,6 @@ namespace ApiClient.Core.Configuration
     [ExcludeFromCodeCoverage]
     public class ConfigurationHelper : IConfigurationHelper
     {
-        private static readonly ILog _log = LogManager.GetLogger(typeof(ConfigurationHelper));
-
         /// <summary>
         ///     This object represents the config file
         /// </summary>
@@ -98,12 +100,10 @@ namespace ApiClient.Core.Configuration
             }
             catch (ConfigurationErrorsException cee)
             {
-                _log.DebugFormat($"Exception Message {cee.Message}");
                 throw;
             }
             catch (System.Exception ex)
             {
-                _log.DebugFormat($"Exception Message {ex.Message}");
                 throw;
             }
         }

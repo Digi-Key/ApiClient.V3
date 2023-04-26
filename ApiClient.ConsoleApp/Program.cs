@@ -11,12 +11,8 @@
 // 
 //-----------------------------------------------------------------------
 
-using System;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using ApiClient.Models;
 using ApiClient.OAuth2;
-using Common.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -24,13 +20,11 @@ namespace ApiClient.ConsoleApp
 {
     public class Program
     {
-        private static readonly ILog _log = LogManager.GetLogger(typeof(Program));
-
-        static void Main()
+        static async Task Main()
         {
             var prog = new Program();
 
-            prog.CallKeywordSearch();
+            await prog.CallKeywordSearch();
 
             // This will keep the console window up until a key is pressed in the console window.
             Console.WriteLine("\n\nPress any key to exit...");
@@ -40,7 +34,6 @@ namespace ApiClient.ConsoleApp
         private async Task CallKeywordSearch()
         {
             var settings = ApiClientSettings.CreateFromConfigFile();
-            _log.DebugFormat(settings.ToString());
             Console.WriteLine(settings.ToString());
             try
             {
@@ -52,15 +45,11 @@ namespace ApiClient.ConsoleApp
                     if (oAuth2AccessToken.IsError)
                     {
                         // Current Refresh token is invalid or expired 
-                        _log.DebugFormat("Current Refresh token is invalid or expired ");
                         Console.WriteLine("Current Refresh token is invalid or expired ");
                         return;
                     }
 
                     settings.UpdateAndSave(oAuth2AccessToken);
-
-                    _log.DebugFormat("After call to refresh");
-                    _log.DebugFormat(settings.ToString());
 
                     Console.WriteLine("After call to refresh");
                     Console.WriteLine(settings.ToString());

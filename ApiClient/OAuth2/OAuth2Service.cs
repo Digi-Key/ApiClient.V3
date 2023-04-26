@@ -11,16 +11,11 @@
 // 
 //-----------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Threading.Tasks;
 using ApiClient.Constants;
 using ApiClient.Models;
 using ApiClient.OAuth2.Models;
-using Common.Logging;
 using Newtonsoft.Json;
 
 namespace ApiClient.OAuth2
@@ -31,8 +26,6 @@ namespace ApiClient.OAuth2
     /// </summary>
     public class OAuth2Service
     {
-        private static readonly ILog _log = LogManager.GetLogger(typeof(OAuth2Service));
-
         private ApiClientSettings _clientSettings;
 
         public ApiClientSettings ClientSettings
@@ -65,7 +58,6 @@ namespace ApiClient.OAuth2
             {
                 url = string.Format("{0}&state={1}", url, state);
             }
-            _log.DebugFormat($"Authorize Url is {url}");
 
             return url;
         }
@@ -120,8 +112,6 @@ namespace ApiClient.OAuth2
 
             // Deserializes the token response if successfull
             var oAuth2Token = OAuth2Helpers.ParseOAuth2AccessTokenResponse(text);
-
-            _log.DebugFormat("FinishAuthorization: " + oAuth2Token);
 
             return oAuth2Token;
         }
