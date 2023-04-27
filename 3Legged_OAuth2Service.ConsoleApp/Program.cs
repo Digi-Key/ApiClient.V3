@@ -23,7 +23,7 @@ namespace OAuth2Service.ConsoleApp
 {
     public class Program
     {
-        private ApiClientSettings _clientSettings;
+        private ApiClientSettings? _clientSettings;
 
         static void Main()
         {
@@ -56,9 +56,19 @@ namespace OAuth2Service.ConsoleApp
             var oAuth2Service = new ApiClient.OAuth2.OAuth2Service(_clientSettings);
             var scopes = "";
 
-            // create Authorize url and send call it thru Process.Start
             var authUrl = oAuth2Service.GenerateAuthUrl(scopes);
-            Process.Start(authUrl);
+            authUrl = authUrl.Replace("&", "^&");
+            var psi = new ProcessStartInfo
+                      {
+                          FileName = "cmd",
+                          WindowStyle = ProcessWindowStyle.Hidden,
+                          UseShellExecute = false,
+                          CreateNoWindow = true,
+                          Arguments = $"/c start {authUrl}"
+                      };
+
+            // create Authorize url and send call it thru Process.Start
+            Process.Start(psi);
 
             // get the URL returned from the callback(RedirectUri)
             var context = await httpListener.GetContextAsync();

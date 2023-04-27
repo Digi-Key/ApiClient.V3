@@ -18,6 +18,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using ApiClient.Core.Configuration.Interfaces;
 using ApiClient.Exception;
+using Microsoft.Extensions.Logging;
 
 namespace ApiClient.Core.Configuration
 {
@@ -35,7 +36,7 @@ namespace ApiClient.Core.Configuration
         private const string _RefreshToken = "ApiClient.RefreshToken";
         private const string _ExpirationDateTime = "ApiClient.ExpirationDateTime";
 
-        private ApiClientConfigHelper()
+        private ApiClientConfigHelper() 
         {
             try
             {
@@ -47,7 +48,7 @@ namespace ApiClient.Core.Configuration
 
                 // This little hack is ugly but needed to work with Console apps and Asp.Net apps.
                 var solutionDir = Regex.IsMatch(baseDir, regexPattern)
-                    ? Directory.GetParent(baseDir).Parent.Parent   // Console Apps
+                    ? Directory.GetParent(baseDir).Parent.Parent.Parent   // Console Apps
                     : Directory.GetParent(baseDir);    // Asp.Net apps
 
                 if (!File.Exists(Path.Combine(solutionDir.FullName, "apiclient.config")))

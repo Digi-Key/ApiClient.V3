@@ -11,16 +11,11 @@
 // 
 //-----------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Threading.Tasks;
 using ApiClient.Constants;
 using ApiClient.Models;
 using ApiClient.OAuth2.Models;
-using Common.Logging;
 using Newtonsoft.Json;
 
 namespace ApiClient.OAuth2
@@ -31,17 +26,15 @@ namespace ApiClient.OAuth2
     /// </summary>
     public class OAuth2Service
     {
-        private static readonly ILog _log = LogManager.GetLogger(typeof(OAuth2Service));
+        private ApiClientSettings? _clientSettings;
 
-        private ApiClientSettings _clientSettings;
-
-        public ApiClientSettings ClientSettings
+        public ApiClientSettings? ClientSettings
         {
             get { return _clientSettings; }
             set { _clientSettings = value; }
         }
 
-        public OAuth2Service(ApiClientSettings clientSettings)
+        public OAuth2Service(ApiClientSettings? clientSettings)
         {
             ClientSettings = clientSettings;
         }
@@ -65,7 +58,6 @@ namespace ApiClient.OAuth2
             {
                 url = string.Format("{0}&state={1}", url, state);
             }
-            _log.DebugFormat($"Authorize Url is {url}");
 
             return url;
         }
@@ -75,7 +67,7 @@ namespace ApiClient.OAuth2
         /// </summary>
         /// <param name="code">Code value returned by the RedirectUri callback</param>
         /// <returns>Returns OAuth2AccessToken</returns>
-        public async Task<OAuth2AccessToken> FinishAuthorization(string code)
+        public async Task<OAuth2AccessToken?> FinishAuthorization(string code)
         {
             ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072;
             ServicePointManager.ServerCertificateValidationCallback =
@@ -121,8 +113,6 @@ namespace ApiClient.OAuth2
             // Deserializes the token response if successfull
             var oAuth2Token = OAuth2Helpers.ParseOAuth2AccessTokenResponse(text);
 
-            _log.DebugFormat("FinishAuthorization: " + oAuth2Token);
-
             return oAuth2Token;
         }
 
@@ -130,11 +120,59 @@ namespace ApiClient.OAuth2
         /// Refreshes the token asynchronous.
         /// </summary>
         /// <returns>Returns OAuth2AccessToken</returns>
-        public async Task<OAuth2AccessToken> RefreshTokenAsync()
+        public async Task<OAuth2AccessToken?> RefreshTokenAsync()
         {
             return await OAuth2Helpers.RefreshTokenAsync(ClientSettings);
         }
 
-        
+        /// <summary>
+        ///     Get 2 Legged Access Token
+        /// </summary>
+        /// <returns>Returns OAuth2AccessToken</returns>
+        public async Task<OAuth2AccessToken?> Get2LeggedAccessToken()
+        {
+            ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072;
+            ServicePointManager.ServerCertificateValidationCallback =
+                delegate { return true; };
+
+            // Build up the body for the token request
+            var body = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>(OAuth2Constants.ClientId, ClientSettings.ClientId),
+                new KeyValuePair<string, string>(OAuth2Constants.ClientSecret, ClientSettings.ClientSecret),
+                new KeyValuePair<string, string>(OAuth2Constants.GrantType, OAuth2Constants.GrantTypes.ClientCredentials)
+            };
+
+            // Request the token
+            var requestMessage = new HttpRequestMessage(HttpMethod.Post, DigiKeyUriConstants.TokenEndpoint);
+
+            var httpClient = new HttpClient { BaseAddress = DigiKeyUriConstants.BaseAddress };
+
+            requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            requestMessage.Content = new FormUrlEncodedContent(body);
+            Console.WriteLine("HttpRequestMessage {0}", requestMessage.RequestUri.AbsoluteUri);
+            var tokenResponse = await httpClient.SendAsync(requestMessage).ConfigureAwait(false);
+            var text = await tokenResponse.Content.ReadAsStringAsync();
+
+            // Check if there was an error in the response
+            if (!tokenResponse.IsSuccessStatusCode)
+            {
+                var status = tokenResponse.StatusCode;
+                if (status == HttpStatusCode.BadRequest)
+                {
+                    // Deserialize and return model
+                    var errorResponse = JsonConvert.DeserializeObject<OAuth2AccessToken>(text);
+                    return errorResponse;
+                }
+
+                // Throw error
+                tokenResponse.EnsureSuccessStatusCode();
+            }
+
+            // Deserializes the token response if successfull
+            var oAuth2Token = OAuth2Helpers.ParseOAuth2AccessTokenResponse(text);
+
+            return oAuth2Token;
+        }
     }
 }

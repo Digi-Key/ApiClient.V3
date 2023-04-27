@@ -11,28 +11,25 @@
 // 
 //-----------------------------------------------------------------------
 
-using System;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Threading.Tasks;
-using System.Web.Http;
+using System.Net.Http.Json;
 using ApiClient.Constants;
 using ApiClient.Exception;
 using ApiClient.Models;
 using ApiClient.OAuth2;
-using Common.Logging;
+using ApiClient.OAuth2.Models;
+using Microsoft.Extensions.Logging;
 
 namespace ApiClient
 {
     public class ApiClientService
     {
         private const string CustomHeader = "Api-StaleTokenRetry";
-        private static readonly ILog _log = LogManager.GetLogger(typeof(ApiClientService));
 
-        private ApiClientSettings _clientSettings;
+        private ApiClientSettings? _clientSettings;
 
-        public ApiClientSettings ClientSettings
+        public ApiClientSettings? ClientSettings
         {
             get => _clientSettings;
             set => _clientSettings = value;
@@ -43,7 +40,7 @@ namespace ApiClient
         /// </summary>
         public HttpClient HttpClient { get; private set; }
 
-        public ApiClientService(ApiClientSettings clientSettings)
+        public ApiClientService(ApiClientSettings? clientSettings)
         {
             ClientSettings = clientSettings ?? throw new ArgumentNullException(nameof(clientSettings));
             Initialize();
@@ -106,11 +103,11 @@ namespace ApiClient
 
         public async Task<HttpResponseMessage> PostAsJsonAsync<T>(string resourcePath, T postRequest)
         {
-            _log.DebugFormat(">ApiClientService::PostAsJsonAsync()");
+            Console.WriteLine(">ApiClientService::PostAsJsonAsync()");
             try
             {
                 var response = await HttpClient.PostAsJsonAsync(resourcePath, postRequest);
-                _log.DebugFormat("<ApiClientService::PostAsJsonAsync()");
+                Console.WriteLine("<ApiClientService::PostAsJsonAsync()");
 
                 //Unauthorized, then there is a chance token is stale
                 if (response.StatusCode == HttpStatusCode.Unauthorized)
@@ -119,10 +116,10 @@ namespace ApiClient
 
                     if (OAuth2Helpers.IsTokenStale(responseBody))
                     {
-                        _log.DebugFormat(
+                        Console.WriteLine(
                             $"Stale access token detected ({_clientSettings.AccessToken}. Calling RefreshTokenAsync to refresh it");
                         await OAuth2Helpers.RefreshTokenAsync(_clientSettings);
-                        _log.DebugFormat($"New Access token is {_clientSettings.AccessToken}");
+                        Console.WriteLine($"New Access token is {_clientSettings.AccessToken}");
 
                         //Only retry the first time.
                         if (!response.RequestMessage.Headers.Contains(CustomHeader))
@@ -143,19 +140,19 @@ namespace ApiClient
             }
             catch (HttpRequestException hre)
             {
-                _log.DebugFormat($"PostAsJsonAsync<T>: HttpRequestException is {hre.Message}");
+                Console.WriteLine($"PostAsJsonAsync<T>: HttpRequestException is {hre.Message}");
                 throw;
             }
             catch (ApiException dae)
             {
-                _log.DebugFormat($"PostAsJsonAsync<T>: ApiException is {dae.Message}");
+                Console.WriteLine($"PostAsJsonAsync<T>: ApiException is {dae.Message}");
                 throw;
             }
         }
 
         protected async Task<string> GetServiceResponse(HttpResponseMessage response)
         {
-            _log.DebugFormat(">ApiClientService::GetServiceResponse()");
+            Console.WriteLine(">ApiClientService::GetServiceResponse()");
             var postResponse = string.Empty;
 
             if (response.IsSuccessStatusCode)
@@ -177,10 +174,10 @@ namespace ApiClient
                     Content = response.Content,
                     ReasonPhrase = response.ReasonPhrase
                 };
-                throw new HttpResponseException(resp);
+                throw new System.Exception(response.ReasonPhrase);
             }
 
-            _log.DebugFormat("<ApiClientService::GetServiceResponse()");
+            Console.WriteLine("<ApiClientService::GetServiceResponse()");
             return postResponse;
         }
     }

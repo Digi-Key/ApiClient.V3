@@ -21,13 +21,18 @@ namespace ApiClient.Constants
     public static class DigiKeyUriConstants
     {
         // Production Sandbox instance
-        public static readonly Uri BaseAddress = new Uri("https://sandbox-api.digikey.com");
-        public static readonly Uri TokenEndpoint = new Uri("https://sandbox-api.digikey.com/v1/oauth2/token");
-        public static readonly Uri AuthorizationEndpoint = new Uri("https://sandbox-api.digikey.com/v1/oauth2/authorize");
-
+        //public static readonly Uri BaseAddress = new Uri("https://sandbox-api.digikey.com");
+        //public static readonly Uri TokenEndpoint = new Uri("https://sandbox-api.digikey.com/v1/oauth2/token");
+        //public static readonly Uri AuthorizationEndpoint = new Uri("https://sandbox-api.digikey.com/v1/oauth2/authorize");
+        
+        // Integration instance
+        // public static readonly Uri BaseAddress = new Uri("https://apiint.digikey.com");
+        // public static readonly Uri TokenEndpoint = new Uri("https://apiint.digikey.com/v1/oauth2/token");
+        // public static readonly Uri AuthorizationEndpoint = new Uri("https://apiint.digikey.com/v1/oauth2/authorize");
+        
         // Production instance
-        //public static readonly Uri BaseAddress = new Uri("https://api.digikey.com");
-        //public static readonly Uri TokenEndpoint = new Uri("https://api.digikey.com/v1/oauth2/token");
-        //public static readonly Uri AuthorizationEndpoint = new Uri("https://api.digikey.com/v1/oauth2/authorize");
+        public static readonly Uri BaseAddress = new Uri("https://api.digikey.com");
+        public static readonly Uri TokenEndpoint = new Uri("https://api.digikey.com/v1/oauth2/token");
+        public static readonly Uri AuthorizationEndpoint = new Uri("https://api.digikey.com/v1/oauth2/authorize");
     }
 }
