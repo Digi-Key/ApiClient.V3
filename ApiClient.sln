@@ -9,8 +9,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assemblies", "Assemblies", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiClient.ConsoleApp", "ApiClient.ConsoleApp\ApiClient.ConsoleApp.csproj", "{419A2EF3-9C66-4BF8-BF8B-4B35CE4EB630}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OAuth2Service.ConsoleApp", "OAuth2Service.ConsoleApp\OAuth2Service.ConsoleApp.csproj", "{71F67A91-2362-4AAB-B16F-B7537E87DC51}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiClient", "ApiClient\ApiClient.csproj", "{698FF1D6-2F24-4FB6-AE59-047F567D97BA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{560625EF-E3D3-4CC0-85D6-94E70A9131A5}"
@@ -19,7 +17,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Readme.md = Readme.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "2Legged_OAuth2Service.ConsoleApp", "2Legged_OAuth2Service.ConsoleApp\2Legged_OAuth2Service.ConsoleApp.csproj", "{B43EB828-423A-4A23-8768-5C35AD5F047B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "2Legged_OAuth2Service.ConsoleApp", "2Legged_OAuth2Service.ConsoleApp\2Legged_OAuth2Service.ConsoleApp.csproj", "{B43EB828-423A-4A23-8768-5C35AD5F047B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "3Legged_OAuth2Service.ConsoleApp", "3Legged_OAuth2Service.ConsoleApp\3Legged_OAuth2Service.ConsoleApp.csproj", "{EAA50446-3BD0-412D-B1E8-5BC442EBE96B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,10 +31,6 @@ Global
 		{419A2EF3-9C66-4BF8-BF8B-4B35CE4EB630}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{419A2EF3-9C66-4BF8-BF8B-4B35CE4EB630}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{419A2EF3-9C66-4BF8-BF8B-4B35CE4EB630}.Release|Any CPU.Build.0 = Release|Any CPU
-		{71F67A91-2362-4AAB-B16F-B7537E87DC51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{71F67A91-2362-4AAB-B16F-B7537E87DC51}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{71F67A91-2362-4AAB-B16F-B7537E87DC51}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{71F67A91-2362-4AAB-B16F-B7537E87DC51}.Release|Any CPU.Build.0 = Release|Any CPU
 		{698FF1D6-2F24-4FB6-AE59-047F567D97BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{698FF1D6-2F24-4FB6-AE59-047F567D97BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{698FF1D6-2F24-4FB6-AE59-047F567D97BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -43,15 +39,19 @@ Global
 		{B43EB828-423A-4A23-8768-5C35AD5F047B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B43EB828-423A-4A23-8768-5C35AD5F047B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B43EB828-423A-4A23-8768-5C35AD5F047B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAA50446-3BD0-412D-B1E8-5BC442EBE96B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAA50446-3BD0-412D-B1E8-5BC442EBE96B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAA50446-3BD0-412D-B1E8-5BC442EBE96B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAA50446-3BD0-412D-B1E8-5BC442EBE96B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{419A2EF3-9C66-4BF8-BF8B-4B35CE4EB630} = {C1F97BA9-95ED-42CD-AD0A-6E22DD1CC18A}
-		{71F67A91-2362-4AAB-B16F-B7537E87DC51} = {C1F97BA9-95ED-42CD-AD0A-6E22DD1CC18A}
 		{698FF1D6-2F24-4FB6-AE59-047F567D97BA} = {52B0F528-B2AB-4BE8-9408-7D83017AB19D}
 		{B43EB828-423A-4A23-8768-5C35AD5F047B} = {C1F97BA9-95ED-42CD-AD0A-6E22DD1CC18A}
+		{EAA50446-3BD0-412D-B1E8-5BC442EBE96B} = {C1F97BA9-95ED-42CD-AD0A-6E22DD1CC18A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9A6DA9DB-8B7A-47BC-943B-4292409AA943}

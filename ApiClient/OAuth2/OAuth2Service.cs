@@ -67,7 +67,7 @@ namespace ApiClient.OAuth2
         /// </summary>
         /// <param name="code">Code value returned by the RedirectUri callback</param>
         /// <returns>Returns OAuth2AccessToken</returns>
-        public async Task<OAuth2AccessToken> FinishAuthorization(string code)
+        public async Task<OAuth2AccessToken?> FinishAuthorization(string code)
         {
             ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072;
             ServicePointManager.ServerCertificateValidationCallback =
@@ -120,7 +120,7 @@ namespace ApiClient.OAuth2
         /// Refreshes the token asynchronous.
         /// </summary>
         /// <returns>Returns OAuth2AccessToken</returns>
-        public async Task<OAuth2AccessToken> RefreshTokenAsync()
+        public async Task<OAuth2AccessToken?> RefreshTokenAsync()
         {
             return await OAuth2Helpers.RefreshTokenAsync(ClientSettings);
         }
@@ -129,7 +129,7 @@ namespace ApiClient.OAuth2
         ///     Get 2 Legged Access Token
         /// </summary>
         /// <returns>Returns OAuth2AccessToken</returns>
-        public async Task<OAuth2AccessToken> Get2LeggedAccessToken()
+        public async Task<OAuth2AccessToken?> Get2LeggedAccessToken()
         {
             ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072;
             ServicePointManager.ServerCertificateValidationCallback =

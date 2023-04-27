@@ -3,6 +3,7 @@ using System.Net;
 using System.Web;
 using ApiClient.Extensions;
 using ApiClient.Models;
+using ApiClient.OAuth2.Models;
 
 namespace _2Legged_OAuth2Service.ConsoleApp
 {

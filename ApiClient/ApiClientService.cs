@@ -18,6 +18,7 @@ using ApiClient.Constants;
 using ApiClient.Exception;
 using ApiClient.Models;
 using ApiClient.OAuth2;
+using ApiClient.OAuth2.Models;
 using Microsoft.Extensions.Logging;
 
 namespace ApiClient

@@ -36,7 +36,7 @@ namespace ApiClient.OAuth2
         public static bool IsTokenStale(string content)
         {
             var errors = JsonConvert.DeserializeObject<OAuth2Error>(content);
-            return errors.HttpMessage.ToLower().Contains("unauthorized");
+            return errors is not null && errors.StatusCode == 401;
         }
 
         /// <summary>
@@ -55,41 +55,45 @@ namespace ApiClient.OAuth2
         /// </summary>
         /// <param name="clientSettings">ApiClientSettings needed for creating a proper refresh token HTTP post call.</param>
         /// <returns>Returns OAuth2AccessToken</returns>
-        public static async Task<OAuth2AccessToken> RefreshTokenAsync(ApiClientSettings? clientSettings)
+        public static async Task<OAuth2AccessToken?> RefreshTokenAsync(ApiClientSettings? clientSettings)
         {
             ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072;
 
             var postUrl = DigiKeyUriConstants.TokenEndpoint;
 
-            var content = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>(OAuth2Constants.GrantType, OAuth2Constants.GrantTypes.RefreshToken),
-                new KeyValuePair<string, string>(OAuth2Constants.ClientId, clientSettings.ClientId),
-                new KeyValuePair<string, string>(OAuth2Constants.ClientSecret, clientSettings.ClientSecret),
-                new KeyValuePair<string, string>(OAuth2Constants.GrantTypes.RefreshToken, clientSettings.RefreshToken),
-            });
+            var content = new FormUrlEncodedContent(
+                new[]
+                {
+                    new KeyValuePair<string, string>(
+                        OAuth2Constants.GrantType,
+                        OAuth2Constants.GrantTypes.RefreshToken),
+                    new KeyValuePair<string, string>(OAuth2Constants.ClientId, clientSettings!.ClientId),
+                    new KeyValuePair<string, string>(OAuth2Constants.ClientSecret, clientSettings.ClientSecret),
+                    new KeyValuePair<string, string>(
+                        OAuth2Constants.GrantTypes.RefreshToken,
+                        clientSettings.RefreshToken),
+                });
 
             var httpClient = new HttpClient();
 
             var response = await httpClient.PostAsync(postUrl, content);
             var responseString = await response.Content.ReadAsStringAsync();
 
-            var oAuth2AccessTokenResponse = OAuth2Helpers.ParseOAuth2AccessTokenResponse(responseString);
+            var oAuth2AccessTokenResponse = ParseOAuth2AccessTokenResponse(responseString);
 
-            if (String.IsNullOrEmpty(oAuth2AccessTokenResponse.AccessToken))
+            if (string.IsNullOrEmpty(oAuth2AccessTokenResponse?.AccessToken))
             {
-	            // likely an error
-	            OAuth2Error oAuth2Error = OAuth2Helpers.ParseOAuth2ErrorResponse(responseString);
-	            oAuth2AccessTokenResponse.Error =
-		            oAuth2Error != null ? oAuth2Error.ErrorMessage : "Error refreshing token";
-	            if (oAuth2Error != null)
-	            {
-		            throw new ApiException($"Error trying to refresh token. {oAuth2Error.ErrorMessage}: {oAuth2Error.ErrorDetails}", null);
-	            }
+                // likely an error
+                var oAuth2Error = ParseOAuth2ErrorResponse(responseString);
+                oAuth2AccessTokenResponse!.Error =
+                    oAuth2Error != null ? oAuth2Error.ErrorMessage : "Error refreshing token";
+                if (oAuth2Error != null)
+                    throw new ApiException(
+                        $"Error trying to refresh token. {oAuth2Error.ErrorMessage}: {oAuth2Error.ErrorDetails}");
             }
             else
             {
-	            clientSettings.UpdateAndSave(oAuth2AccessTokenResponse);
+                clientSettings.UpdateAndSave(oAuth2AccessTokenResponse);
             }
 
             return oAuth2AccessTokenResponse;
@@ -101,7 +105,7 @@ namespace ApiClient.OAuth2
         /// <param name="response">The response.</param>
         /// <returns>instance of OAuth2AccessToken</returns>
         /// <exception cref="ApiException">ull)</exception>
-        public static OAuth2AccessToken ParseOAuth2AccessTokenResponse(string response)
+        public static OAuth2AccessToken? ParseOAuth2AccessTokenResponse(string response)
         {
             try
             {
@@ -111,7 +115,7 @@ namespace ApiClient.OAuth2
             catch (System.Exception e)
             {
                 Console.WriteLine(e.Message);
-                throw new ApiException($"Unable to parse OAuth2 access token response {e.Message}", null);
+                throw new ApiException($"Unable to parse OAuth2 access token response {e.Message}");
             }
         }
 
@@ -121,20 +125,20 @@ namespace ApiClient.OAuth2
         /// <param name="response">The response.</param>
         /// <returns>instance of OAuth2Error</returns>
         /// <exception cref="ApiException">ull)</exception>
-        public static OAuth2Error ParseOAuth2ErrorResponse(string response)
+        public static OAuth2Error? ParseOAuth2ErrorResponse(string response)
         {
-	        try
-	        {
-		        OAuth2Error oAuth2ErrorResponse = JsonConvert.DeserializeObject<OAuth2Error>(response);
-		        //_log.DebugFormat("RefreshToken: " + oAuth2AccessTokenResponse.ToString());
-		        return oAuth2ErrorResponse;
-	        }
-	        catch (System.Exception e)
-	        {
-		        Console.WriteLine(e.Message);
-		        //_log.DebugFormat($"Unable to parse OAuth2 access token response {e.Message}");
-		        throw new ApiException($"Unable to parse OAuth2 error response {e.Message}", null);
-	        }
+            try
+            {
+                var oAuth2ErrorResponse = JsonConvert.DeserializeObject<OAuth2Error>(response);
+                //_log.DebugFormat("RefreshToken: " + oAuth2AccessTokenResponse.ToString());
+                return oAuth2ErrorResponse;
+            }
+            catch (System.Exception e)
+            {
+                Console.WriteLine(e.Message);
+                //_log.DebugFormat($"Unable to parse OAuth2 access token response {e.Message}");
+                throw new ApiException($"Unable to parse OAuth2 error response {e.Message}");
+            }
         }
     }
 }

@@ -51,7 +51,7 @@ namespace ApiClient.Models
             };
         }
 
-        public void UpdateAndSave(OAuth2AccessToken oAuth2AccessToken)
+        public void UpdateAndSave(OAuth2AccessToken? oAuth2AccessToken)
         {
             AccessToken = oAuth2AccessToken.AccessToken;
             RefreshToken = oAuth2AccessToken.RefreshToken;
