@@ -26,15 +26,15 @@ namespace ApiClient.OAuth2
     /// </summary>
     public class OAuth2Service
     {
-        private ApiClientSettings _clientSettings;
+        private ApiClientSettings? _clientSettings;
 
-        public ApiClientSettings ClientSettings
+        public ApiClientSettings? ClientSettings
         {
             get { return _clientSettings; }
             set { _clientSettings = value; }
         }
 
-        public OAuth2Service(ApiClientSettings clientSettings)
+        public OAuth2Service(ApiClientSettings? clientSettings)
         {
             ClientSettings = clientSettings;
         }

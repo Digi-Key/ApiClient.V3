@@ -8,13 +8,14 @@ namespace _2Legged_OAuth2Service.ConsoleApp
 {
     public class Program
     {
-        private ApiClientSettings _clientSettings;
+        private ApiClientSettings? _clientSettings;
+
         static void Main()
         {
-            var prog = new Program();
+            var program = new Program();
 
             // Read configuration values from apiclient.config file and run OAuth2 code flow with OAuth2 Server
-            prog.Authorize();
+            program.Authorize();
 
             // This will keep the console window up until a key is press in the console window.
             Console.WriteLine("\n\nPress any key to exit...");
