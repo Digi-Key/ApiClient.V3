@@ -125,6 +125,54 @@ namespace ApiClient.OAuth2
             return await OAuth2Helpers.RefreshTokenAsync(ClientSettings);
         }
 
-        
+        /// <summary>
+        ///     Get 2 Legged Access Token
+        /// </summary>
+        /// <returns>Returns OAuth2AccessToken</returns>
+        public async Task<OAuth2AccessToken> Get2LeggedAccessToken()
+        {
+            ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072;
+            ServicePointManager.ServerCertificateValidationCallback =
+                delegate { return true; };
+
+            // Build up the body for the token request
+            var body = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>(OAuth2Constants.ClientId, ClientSettings.ClientId),
+                new KeyValuePair<string, string>(OAuth2Constants.ClientSecret, ClientSettings.ClientSecret),
+                new KeyValuePair<string, string>(OAuth2Constants.GrantType, OAuth2Constants.GrantTypes.ClientCredentials)
+            };
+
+            // Request the token
+            var requestMessage = new HttpRequestMessage(HttpMethod.Post, DigiKeyUriConstants.TokenEndpoint);
+
+            var httpClient = new HttpClient { BaseAddress = DigiKeyUriConstants.BaseAddress };
+
+            requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            requestMessage.Content = new FormUrlEncodedContent(body);
+            Console.WriteLine("HttpRequestMessage {0}", requestMessage.RequestUri.AbsoluteUri);
+            var tokenResponse = await httpClient.SendAsync(requestMessage).ConfigureAwait(false);
+            var text = await tokenResponse.Content.ReadAsStringAsync();
+
+            // Check if there was an error in the response
+            if (!tokenResponse.IsSuccessStatusCode)
+            {
+                var status = tokenResponse.StatusCode;
+                if (status == HttpStatusCode.BadRequest)
+                {
+                    // Deserialize and return model
+                    var errorResponse = JsonConvert.DeserializeObject<OAuth2AccessToken>(text);
+                    return errorResponse;
+                }
+
+                // Throw error
+                tokenResponse.EnsureSuccessStatusCode();
+            }
+
+            // Deserializes the token response if successfull
+            var oAuth2Token = OAuth2Helpers.ParseOAuth2AccessTokenResponse(text);
+
+            return oAuth2Token;
+        }
     }
 }

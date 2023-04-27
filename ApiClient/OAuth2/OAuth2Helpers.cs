@@ -55,7 +55,7 @@ namespace ApiClient.OAuth2
         /// </summary>
         /// <param name="clientSettings">ApiClientSettings needed for creating a proper refresh token HTTP post call.</param>
         /// <returns>Returns OAuth2AccessToken</returns>
-        public static async Task<OAuth2AccessToken> RefreshTokenAsync(ApiClientSettings clientSettings)
+        public static async Task<OAuth2AccessToken> RefreshTokenAsync(ApiClientSettings? clientSettings)
         {
             ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072;
 

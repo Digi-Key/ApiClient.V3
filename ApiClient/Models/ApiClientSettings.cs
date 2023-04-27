@@ -11,7 +11,6 @@
 // 
 //-----------------------------------------------------------------------
 
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using ApiClient.Core.Configuration;
@@ -21,11 +20,11 @@ namespace ApiClient.Models
 {
     public class ApiClientSettings
     {
-        public String ClientId { get; set; }
-        public String ClientSecret { get; set; }
-        public String RedirectUri { get; set; }
-        public String AccessToken { get; set; }
-        public String RefreshToken { get; set; }
+        public string ClientId { get; set; } = string.Empty;
+        public string ClientSecret { get; set; } = string.Empty;
+        public string RedirectUri { get; set; } = string.Empty;
+        public string AccessToken { get; set; } = string.Empty;
+        public String RefreshToken { get; set; } = string.Empty;
         public DateTime ExpirationDateTime { get; set; }
 
         public void Save()
