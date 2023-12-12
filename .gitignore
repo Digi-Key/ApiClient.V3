@@ -261,3 +261,8 @@ _ReSharper*/
 
 
 /src/B2BApi.Bom.Api/B2BApi.Bom.Api.V3.xml
+apiclient.config
+launchsettings.json
+
+*.nuspec
+*.nupkg
