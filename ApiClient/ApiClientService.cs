@@ -11,10 +11,12 @@
 // 
 //-----------------------------------------------------------------------
 
+using ApiClient.API;
 using ApiClient.Constants;
 using ApiClient.Exception;
 using ApiClient.Models;
 using ApiClient.OAuth2;
+using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -26,6 +28,13 @@ namespace ApiClient
         private const string CustomHeader = "Api-StaleTokenRetry";
 
         private ApiClientSettings _clientSettings;
+        private readonly ILogger _logger;
+
+        public readonly ISaveRequest SaveRequest;
+        public ProductInformation ProductInformation { get; private set; }
+        public DateTime AfterDate = DateTime.MinValue;
+
+        public readonly IQueryable<RequestSnapshot> ExistingRequests;
 
         public ApiClientSettings ClientSettings
         {
@@ -38,9 +47,15 @@ namespace ApiClient
         /// </summary>
         public HttpClient HttpClient { get; private set; }
 
-        public ApiClientService(ApiClientSettings clientSettings)
+        public ApiClientService(ApiClientSettings clientSettings, ILogger? logger = null, ISaveRequest? saveRequest = null, IQueryable<RequestSnapshot>? existingRequests = null, DateTime? afterDate = null)
         {
+            ExistingRequests = existingRequests ?? Enumerable.Empty<RequestSnapshot>().AsQueryable();
+            if (afterDate != null) AfterDate = (DateTime)afterDate;
+            SaveRequest = saveRequest ?? new DefaultSaveRequest();
+            _logger = logger ?? ConsoleLogger.Create();
             _clientSettings = clientSettings ?? throw new ArgumentNullException(nameof(clientSettings));
+
+            ProductInformation = new(this);
 
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             HttpClient = new() { BaseAddress = DigiKeyUriConstants.BaseAddress };
@@ -59,14 +74,14 @@ namespace ApiClient
                 if (oAuth2AccessToken.IsError)
                 {
                     // Current Refresh token is invalid or expired 
-                    Console.WriteLine("Current Refresh token is invalid or expired ");
+                    _logger?.LogInformation("Current Refresh token is invalid or expired ");
                     return;
                 }
 
                 // Update the clientSettings
                 _clientSettings.UpdateAndSave(oAuth2AccessToken);
-                Console.WriteLine("ApiClientService::CheckifAccessTokenIsExpired() call to refresh");
-                Console.WriteLine(_clientSettings.ToString());
+                _logger?.LogInformation("ApiClientService::CheckifAccessTokenIsExpired() call to refresh");
+                _logger?.LogInformation(_clientSettings.ToString());
 
                 // Reset the Authorization header value with the new access token.
                 var authenticationHeaderValue = new AuthenticationHeaderValue("Bearer", _clientSettings.AccessToken);
@@ -74,74 +89,73 @@ namespace ApiClient
             }
         }
 
-        public async Task<string> KeywordSearch(string keyword)
+        public async Task<HttpResponseMessage> GetAsync(string resourcePath)
         {
-            var resourcePath = "/Search/v3/Products/Keyword";
+            _logger?.LogInformation(">ApiClientService::GetAsync()");
+            var response = await HttpClient.GetAsync(resourcePath);
+            _logger?.LogInformation("<ApiClientService::GetAsync()");
 
-            var request = new KeywordSearchRequest
+            //Unauthorized, then there is a chance token is stale
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
-                Keywords = keyword ?? "P5555-ND",
-                RecordCount = 25
-            };
+                var responseBody = await response.Content.ReadAsStringAsync();
 
-            await ResetExpiredAccessTokenIfNeeded();
-            var postResponse = await PostAsJsonAsync(resourcePath, request);
+                if (OAuth2Helpers.IsTokenStale(responseBody))
+                {
+                    _logger?.LogInformation("Stale access token detected ({accessToken}. Calling RefreshTokenAsync to refresh it", _clientSettings.AccessToken);
+                    await OAuth2Helpers.RefreshTokenAsync(_clientSettings);
 
-            return GetServiceResponse(postResponse).Result;
+                    _logger?.LogInformation("New Access token is {accessToken}", _clientSettings.AccessToken);
+
+                    //Only retry the first time.
+                    if (response.RequestMessage!.Headers.Contains(CustomHeader))
+                        throw new ApiException($"Inside method {nameof(GetAsync)} we received an unexpected stale token response - during the retry for a call whose token we just refreshed {response.StatusCode}");
+
+                    HttpClient.DefaultRequestHeaders.Add(CustomHeader, CustomHeader);
+                    HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Authorization", _clientSettings.AccessToken);
+
+                    return await GetAsync(resourcePath);
+                }
+            }
+
+            return response;
         }
 
         public async Task<HttpResponseMessage> PostAsJsonAsync<T>(string resourcePath, T postRequest)
         {
-            Console.WriteLine(">ApiClientService::PostAsJsonAsync()");
-            try
-            {
-                HttpResponseMessage response = await HttpClient.PostAsJsonAsync(resourcePath, postRequest);
-                Console.WriteLine("<ApiClientService::PostAsJsonAsync()");
+            _logger?.LogInformation(">ApiClientService::PostAsJsonAsync()");
+            HttpResponseMessage response = await HttpClient.PostAsJsonAsync(resourcePath, postRequest);
+            _logger?.LogInformation("<ApiClientService::PostAsJsonAsync()");
 
-                //Unauthorized, then there is a chance token is stale
-                if (response.StatusCode == HttpStatusCode.Unauthorized)
+            //Unauthorized, then there is a chance token is stale
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+
+                if (OAuth2Helpers.IsTokenStale(responseBody))
                 {
-                    var responseBody = await response.Content.ReadAsStringAsync();
+                    _logger?.LogInformation("Stale access token detected ({accessToken}. Calling RefreshTokenAsync to refresh it", _clientSettings.AccessToken);
+                    await OAuth2Helpers.RefreshTokenAsync(_clientSettings);
 
-                    if (OAuth2Helpers.IsTokenStale(responseBody))
-                    {
-                        Console.WriteLine(
-                            $"Stale access token detected ({_clientSettings.AccessToken}. Calling RefreshTokenAsync to refresh it");
-                        await OAuth2Helpers.RefreshTokenAsync(_clientSettings);
-                        Console.WriteLine($"New Access token is {_clientSettings.AccessToken}");
+                    _logger?.LogInformation("New Access token is {accessToken}", _clientSettings.AccessToken);
 
-                        //Only retry the first time.
-                        if (!response.RequestMessage!.Headers.Contains(CustomHeader))
-                        {
-                            HttpClient.DefaultRequestHeaders.Add(CustomHeader, CustomHeader);
-                            HttpClient.DefaultRequestHeaders.Authorization =
-                                new AuthenticationHeaderValue("Authorization", _clientSettings.AccessToken);
-                            return await PostAsJsonAsync(resourcePath, postRequest);
-                        }
-                        else if (response.RequestMessage.Headers.Contains(CustomHeader))
-                        {
-                            throw new ApiException($"Inside method {nameof(PostAsJsonAsync)} we received an unexpected stale token response - during the retry for a call whose token we just refreshed {response.StatusCode}");
-                        }
-                    }
+                    //Only retry the first time.
+                    if (response.RequestMessage!.Headers.Contains(CustomHeader))
+                        throw new ApiException($"Inside method {nameof(PostAsJsonAsync)} we received an unexpected stale token response - during the retry for a call whose token we just refreshed {response.StatusCode}");
+
+                    HttpClient.DefaultRequestHeaders.Add(CustomHeader, CustomHeader);
+                    HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Authorization", _clientSettings.AccessToken);
+
+                    return await PostAsJsonAsync(resourcePath, postRequest);
                 }
+            }
 
-                return response;
-            }
-            catch (HttpRequestException hre)
-            {
-                Console.WriteLine($"PostAsJsonAsync<T>: HttpRequestException is {hre.Message}");
-                throw;
-            }
-            catch (ApiException dae)
-            {
-                Console.WriteLine($"PostAsJsonAsync<T>: ApiException is {dae.Message}");
-                throw;
-            }
+            return response;
         }
 
-        protected static async Task<string> GetServiceResponse(HttpResponseMessage response)
+        public async Task<string> GetServiceResponse(HttpResponseMessage response)
         {
-            Console.WriteLine(">ApiClientService::GetServiceResponse()");
+            _logger?.LogInformation(">ApiClientService::GetServiceResponse()");
             var postResponse = string.Empty;
 
             if (response.IsSuccessStatusCode)
@@ -154,15 +168,20 @@ namespace ApiClient
             else
             {
                 var errorMessage = await response.Content.ReadAsStringAsync();
-                Console.WriteLine("Response");
-                Console.WriteLine("  Status Code : {0}", response.StatusCode);
-                Console.WriteLine("  Content     : {0}", errorMessage);
-                Console.WriteLine("  Reason      : {0}", response.ReasonPhrase);
+                _logger?.LogInformation("Response");
+                _logger?.LogInformation("  Status Code : {statusCode}", response.StatusCode);
+                _logger?.LogInformation("  Content     : {errorMessage}", errorMessage);
+                _logger?.LogInformation("  Reason      : {reasonPhrase}", response.ReasonPhrase);
                 throw new System.Exception(response.ReasonPhrase);
             }
 
-            Console.WriteLine("<ApiClientService::GetServiceResponse()");
+            _logger?.LogInformation("<ApiClientService::GetServiceResponse()");
             return postResponse;
+        }
+        public string? PrevRequest(string route, string routeParameter, DateTime afterDate)
+        {
+            var snapshot = ExistingRequests.Where(r => r.Route == route && r.RouteParameter == routeParameter && r.DateTime > afterDate).OrderByDescending(r => r.DateTime).FirstOrDefault();
+            return snapshot?.Response;
         }
     }
 }

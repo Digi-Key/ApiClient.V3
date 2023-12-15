@@ -15,7 +15,6 @@ namespace _2Legged_OAuth2Service.ConsoleApp
 
             // This will keep the console window up until a key is press in the console window.
             Console.WriteLine("\n\nPress any key to exit...");
-            Console.ReadKey();
         }
 
         /// <summary>

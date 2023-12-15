@@ -14,6 +14,7 @@
 using ApiClient.Constants;
 using ApiClient.Models;
 using ApiClient.OAuth2.Models;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Net;
 using System.Net.Http.Headers;
@@ -27,6 +28,7 @@ namespace ApiClient.OAuth2
     public class OAuth2Service
     {
         private ApiClientSettings? _clientSettings;
+        private readonly ILogger? _logger;
 
         public ApiClientSettings? ClientSettings
         {
@@ -34,8 +36,9 @@ namespace ApiClient.OAuth2
             set { _clientSettings = value; }
         }
 
-        public OAuth2Service(ApiClientSettings? clientSettings)
+        public OAuth2Service(ApiClientSettings? clientSettings, ILogger? logger = null)
         {
+            _logger = logger;
             ClientSettings = clientSettings;
         }
 
@@ -91,7 +94,7 @@ namespace ApiClient.OAuth2
 
             requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             requestMessage.Content = new FormUrlEncodedContent(body);
-            Console.WriteLine("HttpRequestMessage {0}", requestMessage.RequestUri?.AbsoluteUri);
+            _logger?.LogInformation("HttpRequestMessage {uri}", requestMessage.RequestUri?.AbsoluteUri);
             var tokenResponse = await httpClient.SendAsync(requestMessage).ConfigureAwait(false);
             var text = await tokenResponse.Content.ReadAsStringAsync();
 
@@ -150,7 +153,7 @@ namespace ApiClient.OAuth2
 
             requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             requestMessage.Content = new FormUrlEncodedContent(body);
-            Console.WriteLine("HttpRequestMessage {0}", requestMessage.RequestUri?.AbsoluteUri);
+            _logger?.LogInformation("HttpRequestMessage {uri}", requestMessage.RequestUri?.AbsoluteUri);
             var tokenResponse = await httpClient.SendAsync(requestMessage).ConfigureAwait(false);
             var text = await tokenResponse.Content.ReadAsStringAsync();
 

@@ -114,7 +114,6 @@ namespace ApiClient.OAuth2
             }
             catch (System.Exception e)
             {
-                Console.WriteLine(e.Message);
                 throw new ApiException($"Unable to parse OAuth2 access token response {e.Message}");
             }
         }
@@ -135,7 +134,6 @@ namespace ApiClient.OAuth2
             }
             catch (System.Exception e)
             {
-                Console.WriteLine(e.Message);
                 //_log.DebugFormat($"Unable to parse OAuth2 access token response {e.Message}");
                 throw new ApiException($"Unable to parse OAuth2 error response {e.Message}");
             }

@@ -37,25 +37,12 @@ namespace ApiClient.Core.Configuration
         {
             try
             {
-                string regexPattern = @"^(.*)(\\bin\\)(.*)$";
-
-                // We are attempting to find the apiclient.config file in the solution folder for this project
-                // Using this method we can use the same apiclient.config for all the projects in this solution.
-                var baseDir = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
-
-                // This little hack is ugly but needed to work with Console apps and Asp.Net apps.
-                var solutionDir = Regex.IsMatch(baseDir, regexPattern)
-                    ? Directory.GetParent(baseDir)?.Parent?.Parent?.Parent   // Console Apps
-                    : Directory.GetParent(baseDir);    // Asp.Net apps
-
-                if (!File.Exists(Path.Combine(solutionDir!.FullName, "apiclient.config")))
-                {
-                    throw new ApiException($"Unable to locate apiclient.config in solution folder {solutionDir.FullName}");
-                }
+                var environmentPath = Environment.GetEnvironmentVariable("APICLIENT_CONFIG_PATH");
+                var filePath = environmentPath ?? FindSolutionDir();
 
                 var map = new ExeConfigurationFileMap
                 {
-                    ExeConfigFilename = Path.Combine(solutionDir.FullName, "apiclient.config"),
+                    ExeConfigFilename = filePath
                 };
                 Console.WriteLine($"map.ExeConfigFilename {map.ExeConfigFilename}");
                 _config = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None);
@@ -64,6 +51,27 @@ namespace ApiClient.Core.Configuration
             {
                 throw new ApiException($"Error in ApiClientConfigHelper on opening up apiclient.config {ex.Message}");
             }
+        }
+
+        private static string FindSolutionDir()
+        {
+            string regexPattern = @"^(.*)(\\bin\\)(.*)$";
+
+            // We are attempting to find the apiclient.config file in the solution folder for this project
+            // Using this method we can use the same apiclient.config for all the projects in this solution.
+            var baseDir = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
+
+            // This little hack is ugly but needed to work with Console apps and Asp.Net apps.
+            var solutionDir = Regex.IsMatch(baseDir, regexPattern)
+                ? Directory.GetParent(baseDir)?.Parent?.Parent?.Parent   // Console Apps
+                : Directory.GetParent(baseDir);    // Asp.Net apps
+
+            if (!File.Exists(Path.Combine(solutionDir!.FullName, "apiclient.config")))
+            {
+                throw new ApiException($"Unable to locate apiclient.config in solution folder {solutionDir.FullName}");
+            }
+
+            return Path.Combine(solutionDir.FullName, "apiclient.config");
         }
 
         public static ApiClientConfigHelper Instance()
