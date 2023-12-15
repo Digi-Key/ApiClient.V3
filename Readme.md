@@ -1,9 +1,16 @@
-# C# Api Client Library with OAuth2
+<div align="center">
+    <h1>C# DigiKey API Client Library</h1>
+
+![image](https://i.imgur.com/gLgV1tB.png)
+
+</div>
+
+
 
 ### Features
 
 * Makes structured calls to the DigiKey API from .NET projects
-* Logs in users using the OAuth2 code flow
+* Handles the OAuth2 control flow, logs users in, refreshes tokens when needed, etc.
 
 ### Basic Usage
 
@@ -22,10 +29,10 @@ Console.WriteLine("response is {0}", postResponse);
 
 ### Getting Started  
 
-1. Download the zip file containing the solution ApiClient
-2. You will need to Register an application in order to create your unique Client ID, Client Secret, and OAuth Redirection URL. Follow the steps available on the API Portal here https://developer.digikey.com/
-3. In the solution folder update  apiclient.config with the ClientId, ClientSecret, and RedirectUri values from step 2.
-```
+1. Clone the repository or download and extract the zip file containing the ApiClient solution.
+2. You will need to register an application on the [DigiKey Developer Portal](https://developer.digikey.com/) in order to create your unique Client ID, Client Secret as well as to set your redirection URI.
+3. In the solution folder copy sample-apiclient.config as apiclient.config, and update it with the ClientId, ClientSecret, and RedirectUri values from step 2.
+```xml
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
     <appSettings>
