@@ -1,9 +1,4 @@
-﻿using System.Diagnostics;
-using System.Net;
-using System.Web;
-using ApiClient.Extensions;
-using ApiClient.Models;
-using ApiClient.OAuth2.Models;
+﻿using ApiClient.Models;
 
 namespace _2Legged_OAuth2Service.ConsoleApp
 {
@@ -37,7 +32,9 @@ namespace _2Legged_OAuth2Service.ConsoleApp
             var result = await oAuth2Service.Get2LeggedAccessToken();
 
             // Check if you got an error during finishing the OAuth2 authorization
-            if (result.IsError)
+            if (result == null)
+                throw new Exception("Authorize result null");
+            else if (result.IsError)
             {
                 Console.WriteLine("\n\nError            : {0}", result.Error);
                 Console.WriteLine("\n\nError.Description: {0}", result.ErrorDescription);

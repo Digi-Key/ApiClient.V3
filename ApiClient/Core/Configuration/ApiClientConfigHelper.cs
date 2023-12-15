@@ -11,14 +11,11 @@
 // 
 //-----------------------------------------------------------------------
 
-using System;
-using System.Configuration;
-using System.Globalization;
-using System.IO;
-using System.Text.RegularExpressions;
 using ApiClient.Core.Configuration.Interfaces;
 using ApiClient.Exception;
-using Microsoft.Extensions.Logging;
+using System.Configuration;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace ApiClient.Core.Configuration
 {
@@ -27,7 +24,7 @@ namespace ApiClient.Core.Configuration
         // Static members are 'eagerly initialized', that is, 
         // immediately when class is loaded for the first time.
         // .NET guarantees thread safety for static initialization
-        private static readonly ApiClientConfigHelper _thisInstance = new ApiClientConfigHelper();
+        private static readonly ApiClientConfigHelper _thisInstance = new();
 
         private const string _ClientId = "ApiClient.ClientId";
         private const string _ClientSecret = "ApiClient.ClientSecret";
@@ -36,7 +33,7 @@ namespace ApiClient.Core.Configuration
         private const string _RefreshToken = "ApiClient.RefreshToken";
         private const string _ExpirationDateTime = "ApiClient.ExpirationDateTime";
 
-        private ApiClientConfigHelper() 
+        private ApiClientConfigHelper()
         {
             try
             {
@@ -48,10 +45,10 @@ namespace ApiClient.Core.Configuration
 
                 // This little hack is ugly but needed to work with Console apps and Asp.Net apps.
                 var solutionDir = Regex.IsMatch(baseDir, regexPattern)
-                    ? Directory.GetParent(baseDir).Parent.Parent.Parent   // Console Apps
+                    ? Directory.GetParent(baseDir)?.Parent?.Parent?.Parent   // Console Apps
                     : Directory.GetParent(baseDir);    // Asp.Net apps
 
-                if (!File.Exists(Path.Combine(solutionDir.FullName, "apiclient.config")))
+                if (!File.Exists(Path.Combine(solutionDir!.FullName, "apiclient.config")))
                 {
                     throw new ApiException($"Unable to locate apiclient.config in solution folder {solutionDir.FullName}");
                 }
@@ -79,8 +76,8 @@ namespace ApiClient.Core.Configuration
         /// </summary>
         public string ClientId
         {
-            get { return GetAttribute(_ClientId); }
-            set { Update(_ClientId, value); }
+            get => GetAttribute(_ClientId);
+            set => Update(_ClientId, value);
         }
 
         /// <summary>
@@ -88,8 +85,8 @@ namespace ApiClient.Core.Configuration
         /// </summary>
         public string ClientSecret
         {
-            get { return GetAttribute(_ClientSecret); }
-            set { Update(_ClientSecret, value); }
+            get => GetAttribute(_ClientSecret);
+            set => Update(_ClientSecret, value);
         }
 
         /// <summary>
@@ -97,8 +94,8 @@ namespace ApiClient.Core.Configuration
         /// </summary>
         public string RedirectUri
         {
-            get { return GetAttribute(_RedirectUri); }
-            set { Update(_RedirectUri, value); }
+            get => GetAttribute(_RedirectUri);
+            set => Update(_RedirectUri, value);
         }
 
         /// <summary>
@@ -106,8 +103,8 @@ namespace ApiClient.Core.Configuration
         /// </summary>
         public string AccessToken
         {
-            get { return GetAttribute(_AccessToken); }
-            set { Update(_AccessToken, value); }
+            get => GetAttribute(_AccessToken);
+            set => Update(_AccessToken, value);
         }
 
         /// <summary>
@@ -115,8 +112,8 @@ namespace ApiClient.Core.Configuration
         /// </summary>
         public string RefreshToken
         {
-            get { return GetAttribute(_RefreshToken); }
-            set { Update(_RefreshToken, value); }
+            get => GetAttribute(_RefreshToken);
+            set => Update(_RefreshToken, value);
         }
 
         /// <summary>

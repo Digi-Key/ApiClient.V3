@@ -17,22 +17,22 @@ namespace ApiClient.Models
 {
     public class OAuth2Error
     {
-	    [JsonProperty("ErrorResponseVersion")]
-	    public string ErrorResponseVersion { get; set; }
+        [JsonProperty(nameof(ErrorResponseVersion))]
+        public string ErrorResponseVersion { get; set; } = string.Empty;
 
-	    [JsonProperty("StatusCode")]
-	    public int StatusCode { get; set; }
+        [JsonProperty(nameof(StatusCode))]
+        public int StatusCode { get; set; }
 
-	    [JsonProperty("ErrorMessage")]
-	    public string ErrorMessage { get; set; }
+        [JsonProperty(nameof(ErrorMessage))]
+        public string ErrorMessage { get; set; } = string.Empty;
 
-	    [JsonProperty("ErrorDetails")]
-	    public string ErrorDetails { get; set; }
+        [JsonProperty(nameof(ErrorDetails))]
+        public string ErrorDetails { get; set; } = string.Empty;
 
-	    [JsonProperty("RequestId")]
-	    public string RequestId { get; set; }
+        [JsonProperty(nameof(RequestId))]
+        public string RequestId { get; set; } = string.Empty;
 
-	    [JsonProperty("ValidationErrors")]
-	    public List<string> ValidationErrors { get; set; }
+        [JsonProperty(nameof(ValidationErrors))]
+        public List<string> ValidationErrors { get; set; } = [];
     }
 }

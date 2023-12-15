@@ -13,7 +13,6 @@
 
 using ApiClient.Models;
 using ApiClient.OAuth2;
-using ApiClient.OAuth2.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -23,16 +22,16 @@ namespace ApiClient.ConsoleApp
     {
         static async Task Main()
         {
-            var prog = new Program();
+            _ = new Program();
 
-            await prog.CallKeywordSearch();
+            await CallKeywordSearch();
 
             // This will keep the console window up until a key is pressed in the console window.
             Console.WriteLine("\n\nPress any key to exit...");
             Console.ReadKey();
         }
 
-        private async Task CallKeywordSearch()
+        private static async Task CallKeywordSearch()
         {
             var settings = ApiClientSettings.CreateFromConfigFile();
             Console.WriteLine(settings.ToString());

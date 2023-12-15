@@ -11,15 +11,13 @@
 // 
 //-----------------------------------------------------------------------
 
-using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using ApiClient.Constants;
 using ApiClient.Exception;
 using ApiClient.Models;
 using ApiClient.OAuth2;
-using ApiClient.OAuth2.Models;
-using Microsoft.Extensions.Logging;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 
 namespace ApiClient
 {
@@ -27,9 +25,9 @@ namespace ApiClient
     {
         private const string CustomHeader = "Api-StaleTokenRetry";
 
-        private ApiClientSettings? _clientSettings;
+        private ApiClientSettings _clientSettings;
 
-        public ApiClientSettings? ClientSettings
+        public ApiClientSettings ClientSettings
         {
             get => _clientSettings;
             set => _clientSettings = value;
@@ -40,23 +38,14 @@ namespace ApiClient
         /// </summary>
         public HttpClient HttpClient { get; private set; }
 
-        public ApiClientService(ApiClientSettings? clientSettings)
+        public ApiClientService(ApiClientSettings clientSettings)
         {
-            ClientSettings = clientSettings ?? throw new ArgumentNullException(nameof(clientSettings));
-            Initialize();
-        }
-
-        private void Initialize()
-        {
-            HttpClient = new HttpClient();
+            _clientSettings = clientSettings ?? throw new ArgumentNullException(nameof(clientSettings));
 
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-
-            var authenticationHeaderValue = new AuthenticationHeaderValue("Bearer", ClientSettings.AccessToken);
-            HttpClient.DefaultRequestHeaders.Authorization = authenticationHeaderValue;
-
+            HttpClient = new() { BaseAddress = DigiKeyUriConstants.BaseAddress };
+            HttpClient.DefaultRequestHeaders.Authorization = new("Bearer", ClientSettings.AccessToken);
             HttpClient.DefaultRequestHeaders.Add("X-Digikey-Client-Id", ClientSettings.ClientId);
-            HttpClient.BaseAddress = DigiKeyUriConstants.BaseAddress;
             HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
@@ -106,7 +95,7 @@ namespace ApiClient
             Console.WriteLine(">ApiClientService::PostAsJsonAsync()");
             try
             {
-                var response = await HttpClient.PostAsJsonAsync(resourcePath, postRequest);
+                HttpResponseMessage response = await HttpClient.PostAsJsonAsync(resourcePath, postRequest);
                 Console.WriteLine("<ApiClientService::PostAsJsonAsync()");
 
                 //Unauthorized, then there is a chance token is stale
@@ -122,7 +111,7 @@ namespace ApiClient
                         Console.WriteLine($"New Access token is {_clientSettings.AccessToken}");
 
                         //Only retry the first time.
-                        if (!response.RequestMessage.Headers.Contains(CustomHeader))
+                        if (!response.RequestMessage!.Headers.Contains(CustomHeader))
                         {
                             HttpClient.DefaultRequestHeaders.Add(CustomHeader, CustomHeader);
                             HttpClient.DefaultRequestHeaders.Authorization =
@@ -150,7 +139,7 @@ namespace ApiClient
             }
         }
 
-        protected async Task<string> GetServiceResponse(HttpResponseMessage response)
+        protected static async Task<string> GetServiceResponse(HttpResponseMessage response)
         {
             Console.WriteLine(">ApiClientService::GetServiceResponse()");
             var postResponse = string.Empty;
@@ -169,11 +158,6 @@ namespace ApiClient
                 Console.WriteLine("  Status Code : {0}", response.StatusCode);
                 Console.WriteLine("  Content     : {0}", errorMessage);
                 Console.WriteLine("  Reason      : {0}", response.ReasonPhrase);
-                var resp = new HttpResponseMessage(response.StatusCode)
-                {
-                    Content = response.Content,
-                    ReasonPhrase = response.ReasonPhrase
-                };
                 throw new System.Exception(response.ReasonPhrase);
             }
 

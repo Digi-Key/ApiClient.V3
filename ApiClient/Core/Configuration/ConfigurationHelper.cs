@@ -11,14 +11,9 @@
 // 
 //-----------------------------------------------------------------------
 
-using System;
+using ApiClient.Core.Configuration.Interfaces;
 using System.Configuration;
 using System.Diagnostics.CodeAnalysis;
-using ApiClient.Core.Configuration.Interfaces;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using NLog;
-using NLog.Internal;
 using ConfigurationManager = System.Configuration.ConfigurationManager;
 
 namespace ApiClient.Core.Configuration
@@ -32,7 +27,7 @@ namespace ApiClient.Core.Configuration
         /// <summary>
         ///     This object represents the config file
         /// </summary>
-        protected System.Configuration.Configuration _config;
+        protected System.Configuration.Configuration? _config;
 
         /// <summary>
         ///     Updates the value for the specified key in the AppSettings of the Config file.
@@ -41,14 +36,10 @@ namespace ApiClient.Core.Configuration
         /// <param name="value">The value.</param>
         public void Update(string key, string value)
         {
-            if (_config.AppSettings.Settings[key] == null)
-            {
-                _config.AppSettings.Settings.Add(key, value);
-            }
+            if (_config?.AppSettings.Settings[key] == null)
+                _config?.AppSettings.Settings.Add(key, value);
             else
-            {
                 _config.AppSettings.Settings[key].Value = value;
-            }
         }
 
         /// <summary>
@@ -60,13 +51,11 @@ namespace ApiClient.Core.Configuration
         {
             try
             {
-                return _config.AppSettings.Settings[attrName] == null
-                    ? null
-                    : _config.AppSettings.Settings[attrName].Value;
+                return _config?.AppSettings.Settings[attrName]?.Value!;
             }
             catch (System.Exception)
             {
-                return null;
+                return null!;
             }
         }
 
@@ -93,19 +82,8 @@ namespace ApiClient.Core.Configuration
         /// </summary>
         public void Save()
         {
-            try
-            {
-                _config.Save(ConfigurationSaveMode.Full);
-                ConfigurationManager.RefreshSection("appSettings");
-            }
-            catch (ConfigurationErrorsException cee)
-            {
-                throw;
-            }
-            catch (System.Exception ex)
-            {
-                throw;
-            }
+            _config?.Save(ConfigurationSaveMode.Full);
+            ConfigurationManager.RefreshSection("appSettings");
         }
 
         /// <summary>

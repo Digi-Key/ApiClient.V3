@@ -17,11 +17,7 @@ namespace ApiClient.Exception
     ///     Base Api Exception
     /// </summary>
     /// <seealso cref="System.Exception" />
-    public class ApiException : System.Exception
+    public class ApiException(string message, System.Exception? innerEx = null) : System.Exception(message, innerEx)
     {
-        public ApiException(string message, System.Exception innerEx = null) :
-            base(message, innerEx)
-        {
-        }
     }
 }
