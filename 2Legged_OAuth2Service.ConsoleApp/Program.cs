@@ -1,29 +1,26 @@
-﻿using ApiClient.Models;
+﻿//-----------------------------------------------------------------------
+//
+// THE SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTIES OF ANY KIND, EXPRESS, IMPLIED, STATUTORY, 
+// OR OTHERWISE. EXPECT TO THE EXTENT PROHIBITED BY APPLICABLE LAW, DIGI-KEY DISCLAIMS ALL WARRANTIES, 
+// INCLUDING, WITHOUT LIMITATION, ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, 
+// SATISFACTORY QUALITY, TITLE, NON-INFRINGEMENT, QUIET ENJOYMENT, 
+// AND WARRANTIES ARISING OUT OF ANY COURSE OF DEALING OR USAGE OF TRADE. 
+// 
+// DIGI-KEY DOES NOT WARRANT THAT THE SOFTWARE WILL FUNCTION AS DESCRIBED, 
+// WILL BE UNINTERRUPTED OR ERROR-FREE, OR FREE OF HARMFUL COMPONENTS.
+// 
+//-----------------------------------------------------------------------
+
+using ApiClient.Models;
 
 namespace _2Legged_OAuth2Service.ConsoleApp
 {
     public class Program
     {
-        private ApiClientSettings? _clientSettings;
-
-        static void Main()
-        {
-            var program = new Program();
-
-            // Read configuration values from apiclient.config file and run OAuth2 code flow with OAuth2 Server
-            program.Authorize();
-
-            // This will keep the console window up until a key is press in the console window.
-            Console.WriteLine("\n\nPress any key to exit...");
-        }
-
-        /// <summary>
-        ///     OAuth2 code flow authorization with apiclient.config values
-        /// </summary>
-        private async void Authorize()
+        static async Task Main()
         {
             // read clientSettings values from apiclient.config
-            _clientSettings = ApiClientSettings.CreateFromConfigFile();
+            ApiClientSettings? _clientSettings = ApiClientSettings.CreateFromConfigFile();
             Console.WriteLine(_clientSettings.ToString());
 
             var oAuth2Service = new ApiClient.OAuth2.OAuth2Service(_clientSettings);
@@ -50,6 +47,9 @@ namespace _2Legged_OAuth2Service.ConsoleApp
                 Console.WriteLine("After a good refresh");
                 Console.WriteLine(_clientSettings.ToString());
             }
+            // This will keep the console window up until a key is press in the console window.
+            Console.WriteLine("\n\nPress any key to exit...");
+            Console.ReadKey();
         }
     }
 }

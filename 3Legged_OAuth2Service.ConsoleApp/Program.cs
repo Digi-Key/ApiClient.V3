@@ -21,27 +21,10 @@ namespace OAuth2Service.ConsoleApp
 {
     public class Program
     {
-        private ApiClientSettings? _clientSettings;
-
-        static void Main()
-        {
-            var prog = new Program();
-
-            // Read configuration values from apiclient.config file and run OAuth2 code flow with OAuth2 Server
-            prog.Authorize();
-
-            // This will keep the console window up until a key is press in the console window.
-            Console.WriteLine("\n\nPress any key to exit...");
-            Console.ReadKey();
-        }
-
-        /// <summary>
-        ///     OAuth2 code flow authorization with apiclient.config values
-        /// </summary>
-        private async void Authorize()
+        static async Task Main()
         {
             // read clientSettings values from apiclient.config
-            _clientSettings = ApiClientSettings.CreateFromConfigFile();
+            ApiClientSettings? _clientSettings = ApiClientSettings.CreateFromConfigFile();
             Console.WriteLine(_clientSettings.ToString());
 
             // start up a HttpListener for the callback(RedirectUri) from the OAuth2 server
@@ -101,6 +84,10 @@ namespace OAuth2Service.ConsoleApp
                 Console.WriteLine("After a good refresh");
                 Console.WriteLine(_clientSettings.ToString());
             }
+
+            // This will keep the console window up until a key is press in the console window.
+            Console.WriteLine("\n\nPress any key to exit...");
+            Console.ReadKey();
         }
     }
 }

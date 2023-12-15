@@ -22,17 +22,6 @@ namespace ApiClient.ConsoleApp
     {
         static async Task Main()
         {
-            _ = new Program();
-
-            await CallKeywordSearch();
-
-            // This will keep the console window up until a key is pressed in the console window.
-            Console.WriteLine("\n\nPress any key to exit...");
-            Console.ReadKey();
-        }
-
-        private static async Task CallKeywordSearch()
-        {
             var settings = ApiClientSettings.CreateFromConfigFile();
             Console.WriteLine(settings.ToString());
             if (settings.ExpirationDateTime < DateTime.Now)
@@ -60,6 +49,10 @@ namespace ApiClient.ConsoleApp
             var jsonFormatted = JToken.Parse(response).ToString(Formatting.Indented);
 
             Console.WriteLine($"Reponse is {jsonFormatted} ");
+
+            // This will keep the console window up until a key is pressed in the console window.
+            Console.WriteLine("\n\nPress any key to exit...");
+            Console.ReadKey();
         }
     }
 }
