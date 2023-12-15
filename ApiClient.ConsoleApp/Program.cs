@@ -35,39 +35,31 @@ namespace ApiClient.ConsoleApp
         {
             var settings = ApiClientSettings.CreateFromConfigFile();
             Console.WriteLine(settings.ToString());
-            try
+            if (settings.ExpirationDateTime < DateTime.Now)
             {
-                if (settings.ExpirationDateTime < DateTime.Now)
+                // Let's refresh the token
+                var oAuth2Service = new OAuth2Service(settings);
+                var oAuth2AccessToken = await oAuth2Service.RefreshTokenAsync();
+                if (oAuth2AccessToken.IsError)
                 {
-                    // Let's refresh the token
-                    var oAuth2Service = new OAuth2Service(settings);
-                    var oAuth2AccessToken = await oAuth2Service.RefreshTokenAsync();
-                    if (oAuth2AccessToken.IsError)
-                    {
-                        // Current Refresh token is invalid or expired 
-                        Console.WriteLine("Current Refresh token is invalid or expired ");
-                        return;
-                    }
-
-                    settings.UpdateAndSave(oAuth2AccessToken);
-
-                    Console.WriteLine("After call to refresh");
-                    Console.WriteLine(settings.ToString());
+                    // Current Refresh token is invalid or expired 
+                    Console.WriteLine("Current Refresh token is invalid or expired ");
+                    return;
                 }
 
-                var client = new ApiClientService(settings);
-                var response = await client.ProductInformation.KeywordSearch("P5555-ND");
+                settings.UpdateAndSave(oAuth2AccessToken);
 
-                // In order to pretty print the json object we need to do the following
-                var jsonFormatted = JToken.Parse(response).ToString(Formatting.Indented);
+                Console.WriteLine("After call to refresh");
+                Console.WriteLine(settings.ToString());
+            }
 
-                Console.WriteLine($"Reponse is {jsonFormatted} ");
-            }
-            catch (System.Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
+            var client = new ApiClientService(settings);
+            var response = await client.ProductInformation.KeywordSearch("P5555-ND");
+
+            // In order to pretty print the json object we need to do the following
+            var jsonFormatted = JToken.Parse(response).ToString(Formatting.Indented);
+
+            Console.WriteLine($"Reponse is {jsonFormatted} ");
         }
     }
 }
