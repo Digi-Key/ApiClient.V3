@@ -37,9 +37,9 @@ namespace ApiClient.Extensions
                 return input;
             }
 
-            if (!input.EndsWith("/"))
+            if (!input.EndsWith('/'))
             {
-                return input + "/";
+                return input + '/';
             }
 
             return input;
