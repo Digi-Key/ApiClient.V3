@@ -29,8 +29,6 @@ namespace ApiClient
             });
             ILogger logger = loggerFactory.CreateLogger<ApiClientService>();
 
-            logger.LogInformation("Logger Initialized");
-
             return logger;
         }
     }
