@@ -23,18 +23,13 @@ using System.Net.Http.Json;
 
 namespace ApiClient
 {
-    public class ApiClientService
+    public class ApiClientServiceParent
     {
-        private const string CustomHeader = "Api-StaleTokenRetry";
+        internal const string CustomHeader = "Api-StaleTokenRetry";
 
-        private ApiClientSettings _clientSettings;
-        private readonly ILogger _logger;
-
-        public readonly ISaveRequest SaveRequest;
-        public ProductInformation ProductInformation { get; private set; }
-        public DateTime AfterDate = DateTime.MinValue;
-
-        public readonly IQueryable<RequestSnapshot> ExistingRequests;
+        internal ApiClientSettings _clientSettings;
+        internal readonly ILogger _logger;
+        internal DateTime AfterDate = DateTime.MinValue;
 
         public ApiClientSettings ClientSettings
         {
@@ -47,15 +42,11 @@ namespace ApiClient
         /// </summary>
         public HttpClient HttpClient { get; private set; }
 
-        public ApiClientService(ApiClientSettings clientSettings, ILogger? logger = null, ISaveRequest? saveRequest = null, IQueryable<RequestSnapshot>? existingRequests = null, DateTime? afterDate = null)
+        public ApiClientServiceParent(ApiClientSettings clientSettings, ILogger? logger = null, DateTime? afterDate = null)
         {
-            ExistingRequests = existingRequests ?? Enumerable.Empty<RequestSnapshot>().AsQueryable();
             if (afterDate != null) AfterDate = (DateTime)afterDate;
-            SaveRequest = saveRequest ?? new DefaultSaveRequest();
             _logger = logger ?? ConsoleLogger.Create();
             _clientSettings = clientSettings ?? throw new ArgumentNullException(nameof(clientSettings));
-
-            ProductInformation = new(this);
 
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             HttpClient = new() { BaseAddress = DigiKeyUriConstants.BaseAddress };
@@ -63,7 +54,6 @@ namespace ApiClient
             HttpClient.DefaultRequestHeaders.Add("X-Digikey-Client-Id", ClientSettings.ClientId);
             HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
-
         public async Task ResetExpiredAccessTokenIfNeeded()
         {
             if (_clientSettings.ExpirationDateTime < DateTime.Now)
@@ -81,7 +71,7 @@ namespace ApiClient
                 // Update the clientSettings
                 _clientSettings.UpdateAndSave(oAuth2AccessToken);
                 _logger?.LogInformation("ApiClientService::CheckifAccessTokenIsExpired() call to refresh");
-                _logger?.LogInformation(_clientSettings.ToString());
+                _logger?.LogInformation("{clientsettings}", _clientSettings.ToString());
 
                 // Reset the Authorization header value with the new access token.
                 var authenticationHeaderValue = new AuthenticationHeaderValue("Bearer", _clientSettings.AccessToken);
@@ -178,10 +168,29 @@ namespace ApiClient
             _logger?.LogInformation("<ApiClientService::GetServiceResponse()");
             return postResponse;
         }
-        public string? PrevRequest(string route, string routeParameter, DateTime afterDate)
+    }
+
+    public class ApiClientService : ApiClientServiceParent
+    {
+        public ProductInformation ProductInformation { get; private set; }
+
+        public ApiClientService(ApiClientSettings clientSettings, ILogger? logger = null, DateTime? afterDate = null) : base(clientSettings, logger, afterDate)
         {
-            var snapshot = ExistingRequests.Where(r => r.Route == route && r.RouteParameter == routeParameter && r.DateTime > afterDate).OrderByDescending(r => r.DateTime).FirstOrDefault();
-            return snapshot?.Response;
+            ProductInformation = new(this);
+        }
+    }
+
+    public class ApiClientService<T3, T4> : ApiClientServiceParent
+    {
+
+        public readonly IRequestQuerySave<T3, T4> RequestQuerySave;
+        public ProductInformation<T3, T4> ProductInformation { get; private set; }
+
+        public ApiClientService(ApiClientSettings clientSettings, IRequestQuerySave<T3, T4> requestQuerySave, ILogger? logger = null, DateTime? afterDate = null) : base(clientSettings, logger, afterDate)
+        {
+            RequestQuerySave = requestQuerySave;
+
+            ProductInformation = new(this);
         }
     }
 }

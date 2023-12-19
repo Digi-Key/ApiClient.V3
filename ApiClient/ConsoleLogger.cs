@@ -28,7 +28,7 @@ namespace ApiClient
                     .AddConsole();
             });
             ILogger logger = loggerFactory.CreateLogger<ApiClientService>();
-
+            Console.WriteLine("ApiClient Logger Created!");
             return logger;
         }
     }
