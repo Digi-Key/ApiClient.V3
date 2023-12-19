@@ -28,7 +28,7 @@ Console.WriteLine("response is {0}", postResponse);
 * **ApiClient.ConsoleApp** - Console app to test out programmatic refresh of access token when needed and also check if access token failed to work and then refresh and try again.
 * **OAuth2Service.ConsoleApp** - Console app to create the initial access token and refresh token.
 
-### Getting Started  
+### Getting Started
 
 1. Clone the repository or download and extract the zip file containing the ApiClient solution.
 2. You will need to register an application on the [DigiKey Developer Portal](https://developer.digikey.com/) in order to create your unique Client ID, Client Secret as well as to set your redirection URI.
@@ -52,51 +52,70 @@ Console.WriteLine("response is {0}", postResponse);
 
 
 ### Advanced Usage
-The library supports using external data sources to store previous requests and prevent sending duplicate requests by checking the external data source. Checking for existing requests can be done by mapping the data source object to a new RequestSnapshot object. Saving requests can be done by implementing the ISaveRequest interface.
+The library supports using external data sources to store previous requests and prevent sending duplicate requests by checking the external data source.
 
+Checking for existing requests and saving requests can be done by implementing the generic IRequestQuerySave interface within your application. When implementing the `IRequestQuerySave<T3, T4>` interface, T3 is meant to be your DbContext, and T4 is meant to be the EF Core model for the specific table you are storing the requests in. The intended functions of the generic interface are as shown:
+
+* **Convert**: is meant to convert a `RequestSnapshot` object to the native object your table uses.
+* **RequestSnapshots**: does the opposite, and is intended to convert from your EF Core table to a `IQueryable<RequestSnapshot>` using a LINQ select statement.
+* **Query**: should use `RequestSnapshots` and find any matching results for the route and routeParameter.
+* **Save** should use the Convert method to create a new EF Core object and insert it into your table & save.
+
+Here is a sample implementation of the IRequestQuerySave inteface:
 
 ```csharp
-public class DigiKeyHelperService
+public class RequestQuerySave : IRequestQuerySave<DbContext, DigikeyAPIRequest>
+{
+    public void Save(RequestSnapshot requestSnapshot, DbContext database)
     {
-        private readonly ApiClientSettings _clientSettings;
-        private readonly ApiClientService _clientService;
-        private readonly EFCoreContext _efCoreContext;
-        private readonly SaveRequest _saveRequest;
+        database.DigikeyAPIRequests.Add(Convert(requestSnapshot));
+        database.SaveChanges();
+    }
 
-
-        public DigiKeyHelperService(EFCoreContext efCoreContext)
+    public DigikeyAPIRequest Convert(RequestSnapshot requestSnapshot)
+    {
+        return new()
         {
-            _efCoreContext = efCoreContext;
-            _saveRequest = new(_efCoreContext);
-            _clientSettings = ApiClientSettings.CreateFromConfigFile();
-            _clientService = new(_clientSettings,
-                saveRequest: _saveRequest,
-                existingRequests: _efCoreContext.DigikeyAPIRequests.Select(x => new RequestSnapshot()
-                {
-                    RequestID = x.RequestID,
-                    Route = x.Route,
-                    RouteParameter = x.RouteParameter,
-                    Response = x.Response,
-                    DateTime = x.DateTime
-                }));
-        }
+            Route = requestSnapshot.Route,
+            RouteParameter = requestSnapshot.RouteParameter,
+            Response = requestSnapshot.Response
+        };
+    }
 
-        public class SaveRequest(EFCoreContext efCoreContext) : ISaveRequest
+    public string? Query(string route, string routeParameter, DbContext database, DateTime? afterDate = null)
+    {
+        afterDate ??= DateTime.MinValue;
+        var snapshot = RequestSnapshots(database.DigikeyAPIRequests)
+            .Where(r =>
+            r.Route == route
+            && r.RouteParameter == routeParameter
+            && r.DateTime > afterDate)
+            .OrderByDescending(
+            r => r.DateTime)
+            .FirstOrDefault();
+        return snapshot?.Response;
+    }
+
+    public IQueryable<RequestSnapshot> RequestSnapshots(IQueryable<DigikeyAPIRequest>? table)
+    {
+        return table == null ? Enumerable.Empty<RequestSnapshot>().AsQueryable() : table.Select(x => new RequestSnapshot()
         {
-            private readonly EFCoreContext _efCoreContext = efCoreContext;
-
-            public void Save(RequestSnapshot requestSnapshot)
-            {
-                _efCoreContext.DigikeyAPIRequests.Add(new()
-                {
-                    Route = requestSnapshot.Route,
-                    RouteParameter = requestSnapshot.RouteParameter,
-                    Response = requestSnapshot.Response
-                });
-                _efCoreContext.SaveChanges();
-            }
-        }
+            RequestID = x.RequestID,
+            Route = x.Route,
+            RouteParameter = x.RouteParameter,
+            Response = x.Response,
+            DateTime = x.DateTime
+        });
+    }
 }
+```
+
+An instance of this is then passed to the constructor of the ApiClientService:
+
+```csharp
+var requestQuerySave = new RequestQuerySave();
+var clientSettings = ApiClientSettings.CreateFromConfigFile();
+ApiClientService<DbContext, DigikeyAPIRequest> clientService = new(clientSettings, requestQuerySave);
 ```
 
 ### Previous Request Cutoffs
@@ -107,7 +126,7 @@ The age of previous requests to consider as recent enough can be globably set, o
 
 ```csharp
 DateTime cutoffDateTime = DateTime.Today.AddDays(-30);
-_clientService = new(_clientSettings, afterDate: cutoffDateTime);
+_clientService = new(_clientSettings, _requestQuerySave, afterDate: cutoffDateTime);
 ```
 
 #### Single Request Time Cutoff
