@@ -24,8 +24,8 @@ namespace ApiClient.Core.Configuration
         // Static members are 'eagerly initialized', that is, 
         // immediately when class is loaded for the first time.
         // .NET guarantees thread safety for static initialization
-        private static readonly ApiClientConfigHelper _thisInstance = new();
         private static readonly ExeConfigurationFileMap _map = GetMap();
+        private static readonly ApiClientConfigHelper _thisInstance = new();
 
         public static ExeConfigurationFileMap Map { get => _map; }
 

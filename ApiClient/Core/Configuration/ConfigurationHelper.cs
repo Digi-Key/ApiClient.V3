@@ -86,9 +86,9 @@ namespace ApiClient.Core.Configuration
             {
                 _config?.Save(ConfigurationSaveMode.Modified);
             }
-            catch (ConfigurationException cee)
+            catch (ConfigurationErrorsException cee)
             {
-                if (cee.Message != "The configuration file has been changed by another program.")
+                if (!cee.Message.StartsWith("The configuration file has been changed by another program."))
                     throw;
 
                 _config = ConfigurationManager.OpenMappedExeConfiguration(ApiClientConfigHelper.Map, ConfigurationUserLevel.None);
