@@ -13,14 +13,15 @@
 
 namespace ApiClient.Models
 {
-    public class DefaultSaveRequest : ISaveRequest
+    public interface IRequestQuerySave<T, T1>
     {
-        public void Save(RequestSnapshot requestSnapshot) { }
-    }
+        public void Save(RequestSnapshot requestSnapshot, T database);
 
-    public interface ISaveRequest
-    {
-        public void Save(RequestSnapshot requestSnapshot);
+        public T1? Convert(RequestSnapshot requestSnapshot);
+
+        public string? Query(string route, string routeParameter, T database, DateTime? afterDate);
+
+        public IQueryable<RequestSnapshot> RequestSnapshots(IQueryable<T1>? table = null);
     }
 
     public class RequestSnapshot

@@ -24,7 +24,10 @@ namespace ApiClient.Core.Configuration
         // Static members are 'eagerly initialized', that is, 
         // immediately when class is loaded for the first time.
         // .NET guarantees thread safety for static initialization
+        private static readonly ExeConfigurationFileMap _map = GetMap();
         private static readonly ApiClientConfigHelper _thisInstance = new();
+
+        public static ExeConfigurationFileMap Map { get => _map; }
 
         private const string _ClientId = "ApiClient.ClientId";
         private const string _ClientSecret = "ApiClient.ClientSecret";
@@ -37,20 +40,25 @@ namespace ApiClient.Core.Configuration
         {
             try
             {
-                var environmentPath = Environment.GetEnvironmentVariable("APICLIENT_CONFIG_PATH");
-                var filePath = environmentPath ?? FindSolutionDir();
-
-                var map = new ExeConfigurationFileMap
-                {
-                    ExeConfigFilename = filePath
-                };
-                Console.WriteLine($"map.ExeConfigFilename {map.ExeConfigFilename}");
-                _config = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None);
+                Console.WriteLine($"map.ExeConfigFilename {_map.ExeConfigFilename}");
+                _config = ConfigurationManager.OpenMappedExeConfiguration(_map, ConfigurationUserLevel.None);
             }
             catch (System.Exception ex)
             {
                 throw new ApiException($"Error in ApiClientConfigHelper on opening up apiclient.config {ex.Message}");
             }
+        }
+
+        private static ExeConfigurationFileMap GetMap()
+        {
+            var environmentPath = Environment.GetEnvironmentVariable("APICLIENT_CONFIG_PATH");
+            var filePath = environmentPath ?? FindSolutionDir();
+
+            var map = new ExeConfigurationFileMap
+            {
+                ExeConfigFilename = filePath
+            };
+            return map;
         }
 
         private static string FindSolutionDir()
@@ -74,9 +82,9 @@ namespace ApiClient.Core.Configuration
             return Path.Combine(solutionDir.FullName, "apiclient.config");
         }
 
-        public static ApiClientConfigHelper Instance()
+        public static ApiClientConfigHelper Instance
         {
-            return _thisInstance;
+            get => _thisInstance;
         }
 
         /// <summary>
