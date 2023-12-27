@@ -82,7 +82,17 @@ namespace ApiClient.Core.Configuration
         /// </summary>
         public void Save()
         {
-            _config?.Save(ConfigurationSaveMode.Full);
+            try
+            {
+                _config?.Save(ConfigurationSaveMode.Modified);
+            }
+            catch (ConfigurationException cee)
+            {
+                if (cee.Message != "The configuration file has been changed by another program.")
+                    throw;
+
+                _config = ConfigurationManager.OpenMappedExeConfiguration(ApiClientConfigHelper.Map, ConfigurationUserLevel.None);
+            }
             ConfigurationManager.RefreshSection("appSettings");
         }
 

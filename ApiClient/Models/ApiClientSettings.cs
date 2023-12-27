@@ -29,25 +29,25 @@ namespace ApiClient.Models
 
         public void Save()
         {
-            ApiClientConfigHelper.Instance().ClientId = ClientId ?? string.Empty;
-            ApiClientConfigHelper.Instance().ClientSecret = ClientSecret;
-            ApiClientConfigHelper.Instance().RedirectUri = RedirectUri;
-            ApiClientConfigHelper.Instance().AccessToken = AccessToken;
-            ApiClientConfigHelper.Instance().RefreshToken = RefreshToken;
-            ApiClientConfigHelper.Instance().ExpirationDateTime = ExpirationDateTime;
-            ApiClientConfigHelper.Instance().Save();
+            ApiClientConfigHelper.Instance.ClientId = ClientId;
+            ApiClientConfigHelper.Instance.ClientSecret = ClientSecret;
+            ApiClientConfigHelper.Instance.RedirectUri = RedirectUri;
+            ApiClientConfigHelper.Instance.AccessToken = AccessToken;
+            ApiClientConfigHelper.Instance.RefreshToken = RefreshToken;
+            ApiClientConfigHelper.Instance.ExpirationDateTime = ExpirationDateTime;
+            ApiClientConfigHelper.Instance.Save();
         }
 
         public static ApiClientSettings CreateFromConfigFile()
         {
             return new ApiClientSettings()
             {
-                ClientId = ApiClientConfigHelper.Instance().ClientId,
-                ClientSecret = ApiClientConfigHelper.Instance().ClientSecret,
-                RedirectUri = ApiClientConfigHelper.Instance().RedirectUri,
-                AccessToken = ApiClientConfigHelper.Instance().AccessToken,
-                RefreshToken = ApiClientConfigHelper.Instance().RefreshToken,
-                ExpirationDateTime = ApiClientConfigHelper.Instance().ExpirationDateTime,
+                ClientId = ApiClientConfigHelper.Instance.ClientId,
+                ClientSecret = ApiClientConfigHelper.Instance.ClientSecret,
+                RedirectUri = ApiClientConfigHelper.Instance.RedirectUri,
+                AccessToken = ApiClientConfigHelper.Instance.AccessToken,
+                RefreshToken = ApiClientConfigHelper.Instance.RefreshToken,
+                ExpirationDateTime = ApiClientConfigHelper.Instance.ExpirationDateTime,
             };
         }
 
