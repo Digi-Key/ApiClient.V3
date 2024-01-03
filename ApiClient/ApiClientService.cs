@@ -102,7 +102,7 @@ namespace ApiClient
                         throw new ApiException($"Inside method {nameof(GetAsync)} we received an unexpected stale token response - during the retry for a call whose token we just refreshed {response.StatusCode}");
 
                     HttpClient.DefaultRequestHeaders.Add(CustomHeader, CustomHeader);
-                    HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Authorization", _clientSettings.AccessToken);
+                    HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _clientSettings.AccessToken);
 
                     return await GetAsync(resourcePath);
                 }
@@ -134,7 +134,7 @@ namespace ApiClient
                         throw new ApiException($"Inside method {nameof(PostAsJsonAsync)} we received an unexpected stale token response - during the retry for a call whose token we just refreshed {response.StatusCode}");
 
                     HttpClient.DefaultRequestHeaders.Add(CustomHeader, CustomHeader);
-                    HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Authorization", _clientSettings.AccessToken);
+                    HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _clientSettings.AccessToken);
 
                     return await PostAsJsonAsync(resourcePath, postRequest);
                 }
