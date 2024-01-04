@@ -11,12 +11,12 @@
 // 
 //-----------------------------------------------------------------------
 
-using System.Net;
-using System.Net.Http.Headers;
 using ApiClient.Constants;
 using ApiClient.Models;
 using ApiClient.OAuth2.Models;
 using Newtonsoft.Json;
+using System.Net;
+using System.Net.Http.Headers;
 
 namespace ApiClient.OAuth2
 {
@@ -45,13 +45,13 @@ namespace ApiClient.OAuth2
         /// <param name="scopes">This is current not used and should be "".</param>
         /// <param name="state">This is not currently used.</param>
         /// <returns>String which is the oauth2 authorization url.</returns>
-        public string GenerateAuthUrl(string scopes = "", string state = null)
+        public string GenerateAuthUrl(string scopes = "", string? state = null)
         {
             var url = string.Format("{0}?client_id={1}&scope={2}&redirect_uri={3}&response_type={4}",
                                     DigiKeyUriConstants.AuthorizationEndpoint,
-                                    ClientSettings.ClientId,
+                                    ClientSettings?.ClientId,
                                     scopes,
-                                    ClientSettings.RedirectUri,
+                                    ClientSettings?.RedirectUri,
                                     OAuth2Constants.ResponseTypes.CodeResponse);
 
             if (!string.IsNullOrWhiteSpace(state))
@@ -76,22 +76,21 @@ namespace ApiClient.OAuth2
             // Build up the body for the token request
             var body = new List<KeyValuePair<string, string>>
             {
-                new KeyValuePair<string, string>(OAuth2Constants.Code, code),
-                new KeyValuePair<string, string>(OAuth2Constants.RedirectUri, ClientSettings.RedirectUri),
-                new KeyValuePair<string, string>(OAuth2Constants.ClientId, ClientSettings.ClientId),
-                new KeyValuePair<string, string>(OAuth2Constants.ClientSecret, ClientSettings.ClientSecret),
-                new KeyValuePair<string, string>(OAuth2Constants.GrantType,
+                new(OAuth2Constants.Code, code),
+                new(OAuth2Constants.RedirectUri, ClientSettings?.RedirectUri!),
+                new(OAuth2Constants.ClientId, ClientSettings?.ClientId!),
+                new(OAuth2Constants.ClientSecret, ClientSettings?.ClientSecret!),
+                new(OAuth2Constants.GrantType,
                                                  OAuth2Constants.GrantTypes.AuthorizationCode)
             };
 
             // Request the token
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, DigiKeyUriConstants.TokenEndpoint);
 
-            var httpClient = new HttpClient {BaseAddress = DigiKeyUriConstants.BaseAddress};
+            var httpClient = new HttpClient { BaseAddress = DigiKeyUriConstants.BaseAddress };
 
             requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             requestMessage.Content = new FormUrlEncodedContent(body);
-            Console.WriteLine("HttpRequestMessage {0}", requestMessage.RequestUri.AbsoluteUri);
             var tokenResponse = await httpClient.SendAsync(requestMessage).ConfigureAwait(false);
             var text = await tokenResponse.Content.ReadAsStringAsync();
 
@@ -120,7 +119,7 @@ namespace ApiClient.OAuth2
         /// Refreshes the token asynchronous.
         /// </summary>
         /// <returns>Returns OAuth2AccessToken</returns>
-        public async Task<OAuth2AccessToken?> RefreshTokenAsync()
+        public async Task<OAuth2AccessToken> RefreshTokenAsync()
         {
             return await OAuth2Helpers.RefreshTokenAsync(ClientSettings);
         }
@@ -138,10 +137,11 @@ namespace ApiClient.OAuth2
             // Build up the body for the token request
             var body = new List<KeyValuePair<string, string>>
             {
-                new KeyValuePair<string, string>(OAuth2Constants.ClientId, ClientSettings.ClientId),
-                new KeyValuePair<string, string>(OAuth2Constants.ClientSecret, ClientSettings.ClientSecret),
-                new KeyValuePair<string, string>(OAuth2Constants.GrantType, OAuth2Constants.GrantTypes.ClientCredentials)
+                new(OAuth2Constants.ClientId, ClientSettings?.ClientId!),
+                new(OAuth2Constants.ClientSecret, ClientSettings?.ClientSecret!),
+                new(OAuth2Constants.GrantType, OAuth2Constants.GrantTypes.ClientCredentials)
             };
+
 
             // Request the token
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, DigiKeyUriConstants.TokenEndpoint);
@@ -150,7 +150,6 @@ namespace ApiClient.OAuth2
 
             requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             requestMessage.Content = new FormUrlEncodedContent(body);
-            Console.WriteLine("HttpRequestMessage {0}", requestMessage.RequestUri.AbsoluteUri);
             var tokenResponse = await httpClient.SendAsync(requestMessage).ConfigureAwait(false);
             var text = await tokenResponse.Content.ReadAsStringAsync();
 

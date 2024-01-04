@@ -1,4 +1,4 @@
-//-----------------------------------------------------------------------
+﻿//-----------------------------------------------------------------------
 //
 // THE SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTIES OF ANY KIND, EXPRESS, IMPLIED, STATUTORY, 
 // OR OTHERWISE. EXPECT TO THE EXTENT PROHIBITED BY APPLICABLE LAW, DIGI-KEY DISCLAIMS ALL WARRANTIES, 
@@ -11,13 +11,7 @@
 // 
 //-----------------------------------------------------------------------
 
-namespace ApiClient.Exception
-{
-    /// <summary>
-    ///     Base Api Exception
-    /// </summary>
-    /// <seealso cref="System.Exception" />
-    public class ApiException(string message, System.Exception? innerEx = null) : System.Exception(message, innerEx)
-    {
-    }
-}
+// This file is used by Code Analysis to maintain SuppressMessage
+// attributes that are applied to this project.
+// Project-level suppressions either have no target or are given
+// a specific target and scoped to a namespace, type, member, etc.

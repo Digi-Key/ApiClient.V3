@@ -11,38 +11,31 @@
 // 
 //-----------------------------------------------------------------------
 
-using System.Diagnostics;
-
-namespace ApiClient.Extensions
+namespace ApiClient.Models
 {
-    public static class StringExtensions
+    public interface IRequestQuerySave<T, T1>
     {
-        [DebuggerStepThrough]
-        public static bool IsMissing(this string value)
-        {
-            return string.IsNullOrWhiteSpace(value);
-        }
+        public void Save(RequestSnapshot requestSnapshot, T database);
 
-        [DebuggerStepThrough]
-        public static bool IsPresent(this string value)
-        {
-            return !string.IsNullOrWhiteSpace(value);
-        }
+        public T1? Convert(RequestSnapshot requestSnapshot);
 
-        [DebuggerStepThrough]
-        public static string EnsureTrailingSlash(this string input)
-        {
-            if (string.IsNullOrEmpty(input))
-            {
-                return input;
-            }
+        public string? Query(string route, string routeParameter, T database, DateTime? afterDate);
 
-            if (!input.EndsWith('/'))
-            {
-                return input + '/';
-            }
+        public IQueryable<RequestSnapshot> RequestSnapshots(IQueryable<T1>? table = null);
+    }
 
-            return input;
-        }
+    public class RequestSnapshot
+    {
+        public long RequestID { get; set; }
+
+        public string Route { get; set; } = null!;
+
+        public string RouteParameter { get; set; } = null!;
+
+        public string Parameters { get; set; } = null!;
+
+        public string Response { get; set; } = null!;
+
+        public DateTime DateTime { get; set; }
     }
 }

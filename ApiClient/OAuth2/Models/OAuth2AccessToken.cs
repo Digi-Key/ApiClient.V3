@@ -11,10 +11,10 @@
 // 
 //-----------------------------------------------------------------------
 
-using System.Diagnostics.CodeAnalysis;
-using System.Text;
 using ApiClient.Extensions;
 using Newtonsoft.Json;
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 namespace ApiClient.OAuth2.Models
 {
@@ -22,29 +22,29 @@ namespace ApiClient.OAuth2.Models
     {
         /// <summary>Gets or sets the access token.</summary>
         [JsonProperty(PropertyName = "access_token")]
-        public string AccessToken { get; set; }
+        public string AccessToken { get; set; } = string.Empty;
 
         /// <summary>Gets or sets the error.</summary>
         [JsonProperty(PropertyName = "error")]
-        public string Error { get; set; }
+        public string Error { get; set; } = string.Empty;
 
         public bool IsError => Error.IsPresent();
 
         /// <summary>Gets or sets the error description.</summary>
         [JsonProperty(PropertyName = "error_description")]
-        public string ErrorDescription { get; set; }
+        public string ErrorDescription { get; set; } = string.Empty;
 
         /// <summary>Gets or sets the id token.</summary>
         [JsonProperty(PropertyName = "id_token")]
-        public string IdToken { get; set; }
+        public string IdToken { get; set; } = string.Empty;
 
         /// <summary>Gets or sets the refresh token.</summary>
         [JsonProperty(PropertyName = "refresh_token")]
-        public string RefreshToken { get; set; }
+        public string RefreshToken { get; set; } = string.Empty;
 
         /// <summary>Gets or sets the token type.</summary>
         [JsonProperty(PropertyName = "token_type")]
-        public string TokenType { get; set; }
+        public string TokenType { get; set; } = string.Empty;
 
         /// <summary>Gets or sets the expiration in seconds from now.</summary>
         [JsonProperty(PropertyName = "expires_in")]

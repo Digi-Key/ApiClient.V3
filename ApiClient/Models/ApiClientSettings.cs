@@ -11,10 +11,10 @@
 // 
 //-----------------------------------------------------------------------
 
-using System.Diagnostics.CodeAnalysis;
-using System.Text;
 using ApiClient.Core.Configuration;
 using ApiClient.OAuth2.Models;
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 namespace ApiClient.Models
 {
@@ -24,38 +24,38 @@ namespace ApiClient.Models
         public string ClientSecret { get; set; } = string.Empty;
         public string RedirectUri { get; set; } = string.Empty;
         public string AccessToken { get; set; } = string.Empty;
-        public String RefreshToken { get; set; } = string.Empty;
+        public string RefreshToken { get; set; } = string.Empty;
         public DateTime ExpirationDateTime { get; set; }
 
         public void Save()
         {
-            ApiClientConfigHelper.Instance().ClientId = ClientId;
-            ApiClientConfigHelper.Instance().ClientSecret = ClientSecret;
-            ApiClientConfigHelper.Instance().RedirectUri = RedirectUri;
-            ApiClientConfigHelper.Instance().AccessToken = AccessToken;
-            ApiClientConfigHelper.Instance().RefreshToken = RefreshToken;
-            ApiClientConfigHelper.Instance().ExpirationDateTime = ExpirationDateTime;
-            ApiClientConfigHelper.Instance().Save();
+            ApiClientConfigHelper.Instance.ClientId = ClientId;
+            ApiClientConfigHelper.Instance.ClientSecret = ClientSecret;
+            ApiClientConfigHelper.Instance.RedirectUri = RedirectUri;
+            ApiClientConfigHelper.Instance.AccessToken = AccessToken;
+            ApiClientConfigHelper.Instance.RefreshToken = RefreshToken;
+            ApiClientConfigHelper.Instance.ExpirationDateTime = ExpirationDateTime;
+            ApiClientConfigHelper.Instance.Save();
         }
 
         public static ApiClientSettings CreateFromConfigFile()
         {
             return new ApiClientSettings()
             {
-                ClientId = ApiClientConfigHelper.Instance().ClientId,
-                ClientSecret = ApiClientConfigHelper.Instance().ClientSecret,
-                RedirectUri = ApiClientConfigHelper.Instance().RedirectUri,
-                AccessToken = ApiClientConfigHelper.Instance().AccessToken,
-                RefreshToken = ApiClientConfigHelper.Instance().RefreshToken,
-                ExpirationDateTime = ApiClientConfigHelper.Instance().ExpirationDateTime,
+                ClientId = ApiClientConfigHelper.Instance.ClientId,
+                ClientSecret = ApiClientConfigHelper.Instance.ClientSecret,
+                RedirectUri = ApiClientConfigHelper.Instance.RedirectUri,
+                AccessToken = ApiClientConfigHelper.Instance.AccessToken,
+                RefreshToken = ApiClientConfigHelper.Instance.RefreshToken,
+                ExpirationDateTime = ApiClientConfigHelper.Instance.ExpirationDateTime,
             };
         }
 
         public void UpdateAndSave(OAuth2AccessToken? oAuth2AccessToken)
         {
-            AccessToken = oAuth2AccessToken.AccessToken;
-            RefreshToken = oAuth2AccessToken.RefreshToken;
-            ExpirationDateTime = DateTime.Now.AddSeconds(oAuth2AccessToken.ExpiresIn);
+            AccessToken = oAuth2AccessToken?.AccessToken ?? string.Empty;
+            RefreshToken = oAuth2AccessToken?.RefreshToken ?? string.Empty;
+            ExpirationDateTime = DateTime.Now.AddSeconds(oAuth2AccessToken?.ExpiresIn ?? 0d);
             Save();
         }
         [ExcludeFromCodeCoverage]

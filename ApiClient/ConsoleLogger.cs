@@ -11,38 +11,25 @@
 // 
 //-----------------------------------------------------------------------
 
-using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 
-namespace ApiClient.Extensions
+namespace ApiClient
 {
-    public static class StringExtensions
+    public static class ConsoleLogger
     {
-        [DebuggerStepThrough]
-        public static bool IsMissing(this string value)
+        public static ILogger Create()
         {
-            return string.IsNullOrWhiteSpace(value);
-        }
-
-        [DebuggerStepThrough]
-        public static bool IsPresent(this string value)
-        {
-            return !string.IsNullOrWhiteSpace(value);
-        }
-
-        [DebuggerStepThrough]
-        public static string EnsureTrailingSlash(this string input)
-        {
-            if (string.IsNullOrEmpty(input))
+            using var loggerFactory = LoggerFactory.Create(builder =>
             {
-                return input;
-            }
-
-            if (!input.EndsWith('/'))
-            {
-                return input + '/';
-            }
-
-            return input;
+                builder
+                    .AddFilter("Microsoft", LogLevel.Warning)
+                    .AddFilter("System", LogLevel.Warning)
+                    .AddFilter("ApiClient", LogLevel.Debug)
+                    .AddConsole();
+            });
+            ILogger logger = loggerFactory.CreateLogger<ApiClientService>();
+            Console.WriteLine("ApiClient Logger Created!");
+            return logger;
         }
     }
 }

@@ -11,15 +11,9 @@
 // 
 //-----------------------------------------------------------------------
 
-using System;
-using System.Configuration;
-using System.Diagnostics.CodeAnalysis;
 using ApiClient.Core.Configuration.Interfaces;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using NLog;
-using NLog.Internal;
-using ConfigurationManager = System.Configuration.ConfigurationManager;
+using System.Diagnostics.CodeAnalysis;
+using System.Xml.Linq;
 
 namespace ApiClient.Core.Configuration
 {
@@ -32,7 +26,7 @@ namespace ApiClient.Core.Configuration
         /// <summary>
         ///     This object represents the config file
         /// </summary>
-        protected System.Configuration.Configuration _config;
+        protected XElement? _xconfig;
 
         /// <summary>
         ///     Updates the value for the specified key in the AppSettings of the Config file.
@@ -41,14 +35,29 @@ namespace ApiClient.Core.Configuration
         /// <param name="value">The value.</param>
         public void Update(string key, string value)
         {
-            if (_config.AppSettings.Settings[key] == null)
-            {
-                _config.AppSettings.Settings.Add(key, value);
-            }
+            if (Setting(key) == null)
+                AppSettings?.Add(CreateElement(key, value));
             else
-            {
-                _config.AppSettings.Settings[key].Value = value;
-            }
+                Value(Setting(key))!.SetValue(value);
+        }
+
+        public XElement? AppSettings { get => _xconfig?.Descendants("appSettings")?.FirstOrDefault(); }
+
+        public IEnumerable<XElement>? Settings { get => AppSettings?.Descendants("add"); }
+
+        public static XElement CreateElement(string key, string value)
+        {
+            return new XElement("add", new XAttribute("key", key), new XAttribute("value", value));
+        }
+
+        public XElement? Setting(string name)
+        {
+            return Settings?.Where(e => e.Attributes().Where(r => r.Name == "key" && r.Value == name).Any()).FirstOrDefault();
+        }
+
+        public static XAttribute? Value(XElement? setting)
+        {
+            return setting?.Attributes().Where(l => l.Name == "value").FirstOrDefault();
         }
 
         /// <summary>
@@ -60,13 +69,11 @@ namespace ApiClient.Core.Configuration
         {
             try
             {
-                return _config.AppSettings.Settings[attrName] == null
-                    ? null
-                    : _config.AppSettings.Settings[attrName].Value;
+                return Value(Setting(attrName))?.Value!;
             }
             catch (System.Exception)
             {
-                return null;
+                return null!;
             }
         }
 
@@ -93,27 +100,7 @@ namespace ApiClient.Core.Configuration
         /// </summary>
         public void Save()
         {
-            try
-            {
-                _config.Save(ConfigurationSaveMode.Full);
-                ConfigurationManager.RefreshSection("appSettings");
-            }
-            catch (ConfigurationErrorsException cee)
-            {
-                throw;
-            }
-            catch (System.Exception ex)
-            {
-                throw;
-            }
-        }
-
-        /// <summary>
-        ///     Refreshes the application settingses.
-        /// </summary>
-        public void RefreshAppSettings()
-        {
-            ConfigurationManager.RefreshSection("appSettings");
+            _xconfig!.Save(ApiClientConfigHelper.ConfigFile);
         }
     }
 }

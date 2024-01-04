@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "3Legged_OAuth2Service.ConsoleApp": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DIGIKEY_PRODUCTION": "true"
+      }
+    }
+  }
+}

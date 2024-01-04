@@ -11,13 +11,13 @@
 // 
 //-----------------------------------------------------------------------
 
-using System.Net;
-using System.Text;
 using ApiClient.Constants;
 using ApiClient.Exception;
 using ApiClient.Models;
 using ApiClient.OAuth2.Models;
 using Newtonsoft.Json;
+using System.Net;
+using System.Text;
 
 namespace ApiClient.OAuth2
 {
@@ -55,7 +55,7 @@ namespace ApiClient.OAuth2
         /// </summary>
         /// <param name="clientSettings">ApiClientSettings needed for creating a proper refresh token HTTP post call.</param>
         /// <returns>Returns OAuth2AccessToken</returns>
-        public static async Task<OAuth2AccessToken?> RefreshTokenAsync(ApiClientSettings? clientSettings)
+        public static async Task<OAuth2AccessToken> RefreshTokenAsync(ApiClientSettings? clientSettings)
         {
             ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072;
 
@@ -67,11 +67,11 @@ namespace ApiClient.OAuth2
                     new KeyValuePair<string, string>(
                         OAuth2Constants.GrantType,
                         OAuth2Constants.GrantTypes.RefreshToken),
-                    new KeyValuePair<string, string>(OAuth2Constants.ClientId, clientSettings!.ClientId),
-                    new KeyValuePair<string, string>(OAuth2Constants.ClientSecret, clientSettings.ClientSecret),
+                    new KeyValuePair<string, string>(OAuth2Constants.ClientId, clientSettings?.ClientId!),
+                    new KeyValuePair<string, string>(OAuth2Constants.ClientSecret, clientSettings?.ClientSecret!),
                     new KeyValuePair<string, string>(
                         OAuth2Constants.GrantTypes.RefreshToken,
-                        clientSettings.RefreshToken),
+                        clientSettings?.RefreshToken!),
                 });
 
             var httpClient = new HttpClient();
@@ -93,7 +93,7 @@ namespace ApiClient.OAuth2
             }
             else
             {
-                clientSettings.UpdateAndSave(oAuth2AccessTokenResponse);
+                clientSettings?.UpdateAndSave(oAuth2AccessTokenResponse);
             }
 
             return oAuth2AccessTokenResponse;
@@ -114,7 +114,6 @@ namespace ApiClient.OAuth2
             }
             catch (System.Exception e)
             {
-                Console.WriteLine(e.Message);
                 throw new ApiException($"Unable to parse OAuth2 access token response {e.Message}");
             }
         }
@@ -135,7 +134,6 @@ namespace ApiClient.OAuth2
             }
             catch (System.Exception e)
             {
-                Console.WriteLine(e.Message);
                 //_log.DebugFormat($"Unable to parse OAuth2 access token response {e.Message}");
                 throw new ApiException($"Unable to parse OAuth2 error response {e.Message}");
             }

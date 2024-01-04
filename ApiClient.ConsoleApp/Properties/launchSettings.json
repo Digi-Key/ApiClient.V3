@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ApiClient.ConsoleApp": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DIGIKEY_PRODUCTION": "true"
+      }
+    }
+  }
+}
