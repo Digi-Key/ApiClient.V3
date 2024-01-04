@@ -13,9 +13,9 @@
 
 using ApiClient.Core.Configuration.Interfaces;
 using ApiClient.Exception;
-using System.Configuration;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 namespace ApiClient.Core.Configuration
 {
@@ -24,10 +24,10 @@ namespace ApiClient.Core.Configuration
         // Static members are 'eagerly initialized', that is, 
         // immediately when class is loaded for the first time.
         // .NET guarantees thread safety for static initialization
-        private static readonly ExeConfigurationFileMap _map = GetMap();
+        private static readonly string _configFile = GetConfigFilePath();
         private static readonly ApiClientConfigHelper _thisInstance = new();
 
-        public static ExeConfigurationFileMap Map { get => _map; }
+        public static string ConfigFile { get => _configFile; }
 
         private const string _ClientId = "ApiClient.ClientId";
         private const string _ClientSecret = "ApiClient.ClientSecret";
@@ -40,8 +40,8 @@ namespace ApiClient.Core.Configuration
         {
             try
             {
-                Console.WriteLine($"map.ExeConfigFilename {_map.ExeConfigFilename}");
-                _config = ConfigurationManager.OpenMappedExeConfiguration(_map, ConfigurationUserLevel.None);
+                Console.WriteLine($"XML file: {_configFile}");
+                _xconfig = XElement.Load(_configFile);
             }
             catch (System.Exception ex)
             {
@@ -49,16 +49,11 @@ namespace ApiClient.Core.Configuration
             }
         }
 
-        private static ExeConfigurationFileMap GetMap()
+        private static string GetConfigFilePath()
         {
             var environmentPath = Environment.GetEnvironmentVariable("APICLIENT_CONFIG_PATH");
             var filePath = environmentPath ?? FindSolutionDir();
-
-            var map = new ExeConfigurationFileMap
-            {
-                ExeConfigFilename = filePath
-            };
-            return map;
+            return filePath;
         }
 
         private static string FindSolutionDir()

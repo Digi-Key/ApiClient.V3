@@ -43,10 +43,5 @@ namespace ApiClient.Core.Configuration.Interfaces
         ///     Saves changes to the Config file
         /// </summary>
         void Save();
-
-        /// <summary>
-        ///     Refreshes the application settingses.
-        /// </summary>
-        void RefreshAppSettings();
     }
 }
